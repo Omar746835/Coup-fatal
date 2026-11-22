@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coup Fatal Anime</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#1b1b2f;color:#fff;margin:0;padding:16px;text-align:center}
+  .card{background:#25254a;border-radius:12px;padding:16px;margin:12px auto;max-width:640px}
+  button{background:#ff9f1c;color:#000;border:none;border-radius:8px;padding:12px 16px;font-size:16px;font-weight:bold;cursor:pointer;margin:4px}
+  input{padding:12px;border-radius:8px;border:none;font-size:16px;width:70%;max-width:300px;margin:4px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+  .tile{background:#3a3a6e;border-radius:10px;padding:14px 8px;min-height:50px;display:flex;align-items:center;justify-content:center;font-weight:bold}
+  .tile.click{cursor:pointer}
+  .tile.click:hover{background:#4d4d8f}
+  .tile.used{opacity:.25}
+  .perso{max-width:100%;max-height:320px;border-radius:10px;object-fit:contain}
+  .big{font-size:64px}
+  .msg{color:#ff6b6b;min-height:20px}
+  .ok{color:#7CFC00;font-weight:bold}
+  .timer{font-size:28px;font-weight:bold;color:#ff9f1c}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+// ===== 1. TA CONFIG FIREBASE =====
+const firebaseConfig = {
+  apiKey: "AIzaSyAKG8M5hJE6W1e1JTgynE9i055_2m7ePTU",
+  authDomain: "coup-fatal-anime.firebaseapp.com",
+  databaseURL: "https://coup-fatal-anime-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "coup-fatal-anime",
+  storageBucket: "coup-fatal-anime.firebasestorage.app",
+  messagingSenderId: "998510610153",
+  appId: "1:998510610153:web:85abf4f0edfbd1c5205278"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ===== 2. TES PERSONNAGES =====
+// name : le nom à deviner. img : lien direct vers l'image (vide = un "?" s'affiche).
+const CHARACTERS = [
+  { id: "c1", cat: "Ninjas",   name: "Perso 1", img: "" },
+  { id: "c2", cat: "Ninjas",   name: "Perso 2", img: "" },
+  { id: "c3", cat: "Ninjas",   name: "Perso 3", img: "" },
+  { id: "c4", cat: "Ninjas",   name: "Perso 4", img: "" },
+  { id: "c5", cat: "Sorciers", name: "Perso 5", img: "" },
+  { id: "c6", cat: "Sorciers", name: "Perso 6", img: "" },
+  { id: "c7", cat: "Sorciers", name: "Perso 7", img: "" },
+  { id: "c8", cat: "Sorciers", name: "Perso 8", img: "" }
+];
+
+// ===== Outils =====
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+let uid = localStorage.getItem("uid");
+if (!uid) { uid = Math.random().toString(36).slice(2, 12); localStorage.setItem("uid", uid); }
+
+const code = (new URLSearchParams(location.search).get("room") || "").toUpperCase();
+let room = null, loaded = false, closingKey = null;
+
+function genCode() { return Math.random().toString(36).slice(2, 8).toUpperCase(); }
+
+// ===== Actions =====
+async function createRoom() {
+  const name = $("pseudo").value.trim();
+  if (!name) return alert("Mets un pseudo !");
+  const c = genCode();
+  await db.ref("rooms/" + c).set({ host: uid, status: "lobby", createdAt: Date.now(), players: { [uid]: { name, score: 0 } } });
+  location.href = "?room=" + c;
+}
+function joinByCode() {
+  const c = $("codeInput").value.trim().toUpperCase();
+  if (c) location.href = "?room=" + c;
+}
+async function joinRoom() {
+  const name = $("pseudo").value.trim();
+  if (!name) return alert("Mets un pseudo !");
+  await db.ref(`rooms/${code}/players/${uid}`).update({ name, score: 0 });
+}
+async function startGame() {
+  const ids = Object.keys(room.players).sort(() => Math.random() - 0.5);
+  await db.ref("rooms/" + code).update({ status: "playing", order: ids, turn: 0, used: {}, round: null, lastInfo: null });
+}
+async function pick(id) {
+  await db.ref(`rooms/${code}/round`).transaction(cur =>
+    (cur && cur.charId) ? undefined : { charId: id, endsAt: Date.now() + 20000, winner: null, winAt: null });
+}
+async function answer() {
+  if (!room.round || !room.round.charId) return;
+  const ch = CHARACTERS.find(c => c.id === room.round.charId);
+  const msg = $("msg");
+  if (norm($("ans").value) !== norm(ch.name)) { msg.textContent = "Ce n'est pas le bon nom 😅"; return; }
+  const res = await db.ref(`rooms/${code}/round/winner`).transaction(cur => cur ? undefined : uid);
+  if (res.committed) {
+    await db.ref(`rooms/${code}/round/winAt`).set(Date.now());
+    await db.ref(`rooms/${code}/players/${uid}/score`).transaction(s => (s || 0) + 10);
+  } else {
+    msg.textContent = "Trop tard, quelqu'un a déjà trouvé !";
+  }
+}
+async function skipTurn() {
+  await db.ref("rooms/" + code).update({ turn: (room.turn || 0) + 1 });
+}
+// Seul l'hôte exécute ceci (évite les conflits)
+async function closeRound(r) {
+  const ch = CHARACTERS.find(c => c.id === r.charId);
+  const used = { ...(room.used || {}), [r.charId]: true };
+  const done = Object.keys(used).length >= CHARACTERS.length;
+  await db.ref("rooms/" + code).update({
+    used,
+    round: null,
+    turn: (room.turn || 0) + 1,
+    status: done ? "finished" : "playing",
+    lastInfo: { answer: ch.name, winner: r.winner ? (room.players[r.winner]?.name || "?") : null }
+  });
+}
+
+// ===== Affichage =====
+function renderHome() {
+  $("app").innerHTML = `<div class="card"><h2>🎌 Coup Fatal Anime</h2>
+    <input id="pseudo" placeholder="Ton pseudo"><br>
+    <button onclick="createRoom()">Créer une partie privée</button>
+    <hr>
+    <input id="codeInput" placeholder="Code de la partie"><br>
+    <button onclick="joinByCode()">Rejoindre</button></div>`;
+}
+
+function render() {
+  if (!code) return renderHome();
+  if (!loaded) return;
+  if (!room) {
+    $("app").innerHTML = `<div class="card"><p>Partie introuvable 😕</p><a href="./" style="color:#ff9f1c">Retour à l'accueil</a></div>`;
+    return;
+  }
+  const oldAns = $("ans") ? $("ans").value : "";
+  const players = room.players || {};
+  const isHost = room.host === uid;
+
+  if (!players[uid]) {
+    $("app").innerHTML = `<div class="card"><h2>Rejoindre la partie ${code}</h2>
+      <input id="pseudo" placeholder="Ton pseudo"><br>
+      <button onclick="joinRoom()">Entrer</button></div>`;
+    return;
+  }
+
+  const scores = Object.values(players).sort((a, b) => b.score - a.score)
+    .map(p => `<li>${esc(p.name)} : <b>${p.score}</b> pts</li>`).join("");
+  const scoreCard = `<div class="card"><h3>Scores</h3><ul style="list-style:none;padding:0">${scores}</ul></div>`;
+  let html = "";
+
+  if (room.status === "lobby") {
+    html = `<div class="card"><h2>Salon ${code}</h2>
+      <p>Envoie ce lien à tes potes :</p>
+      <input id="link" value="${location.origin}${location.pathname}?room=${code}" readonly onclick="this.select()">
+      <p>${Object.keys(players).length} joueur(s) dans le salon</p>
+      ${isHost ? `<button onclick="startGame()">Lancer la partie</button>` : `<p>En attente de l'hôte…</p>`}
+    </div>${scoreCard}`;
+
+  } else if (room.status === "playing") {
+    const order = room.order || [];
+    const picker = order[(room.turn || 0) % order.length];
+    const used = room.used || {};
+    const round = (room.round && room.round.charId) ? room.round : null;
+    let body = "";
+
+    if (round) {
+      const ch = CHARACTERS.find(c => c.id === round.charId);
+      const revealed = !!round.winner || Date.now() > round.endsAt;
+      body += ch.img ? `<img class="perso" src="${esc(ch.img)}">` : `<div class="big">❓</div>`;
+      body += `<p>${revealed ? `Réponse : <b>${esc(ch.name)}</b>` : "Qui est ce perso ?"}</p>`;
+      if (round.winner) {
+        body += `<p class="ok">🏆 ${esc(players[round.winner]?.name)} a trouvé !</p>`;
+      } else if (!revealed) {
+        body += `<div class="timer" id="timer"></div>
+          <input id="ans" placeholder="Son nom…" autocomplete="off"><br>
+          <button onclick="answer()">Valider</button>
+          <div class="msg" id="msg"></div>`;
+      }
+    } else if (uid === picker) {
+      body += `<p>🎯 <b>À toi de choisir une case !</b></p><div class="grid">` +
+        CHARACTERS.map(c => used[c.id]
+          ? `<div class="tile used">✔</div>`
+          : `<div class="tile click" onclick="pick('${c.id}')">${esc(c.cat)}</div>`).join("") +
+        `</div>`;
+    } else {
+      body += `<p>C'est à <b>${esc(players[picker]?.name)}</b> de choisir une case…</p>`;
+    }
+
+    if (room.lastInfo && !round) {
+      const li = room.lastInfo;
+      body += `<p>Dernier perso : <b>${esc(li.answer)}</b>${li.winner ? ` (trouvé par ${esc(li.winner)})` : " (personne n'a trouvé)"}</p>`;
+    }
+    if (isHost && !round) body += `<br><button onclick="skipTurn()">Passer ce tour</button>`;
+    html = `<div class="card"><h2>Partie ${code}</h2>${body}</div>${scoreCard}`;
+
+  } else {
+    html = `<div class="card"><h2>🏁 Partie terminée !</h2></div>${scoreCard}`;
+  }
+
+  $("app").innerHTML = html;
+  if ($("ans") && oldAns) $("ans").value = oldAns;
+}
+
+// ===== Écoute en temps réel =====
+if (code) {
+  db.ref("rooms/" + code).on("value", snap => { room = snap.val(); loaded = true; render(); });
+} else {
+  render();
+}
+
+// ===== Minuteur + gestion automatique par l'hôte =====
+setInterval(() => {
+  if (!room || !room.round || !room.round.charId || room.status !== "playing") return;
+  const r = room.round;
+  const t = $("timer");
+  if (t) t.textContent = "⏱️ " + Math.max(0, Math.ceil((r.endsAt - Date.now()) / 1000)) + " s";
+  if (room.host !== uid) return;
+  const now = Date.now();
+  const due = r.winner ? (r.winAt && now > r.winAt + 4000) : (now > r.endsAt + 3000);
+  if (due && closingKey !== r.endsAt) { closingKey = r.endsAt; closeRound(r); }
+}, 250);
+</script>
+</body>
+</html>
