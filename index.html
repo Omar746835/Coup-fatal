@@ -8,6 +8,7 @@
   body{font-family:system-ui,sans-serif;background:#1b1b2f;color:#fff;margin:0;padding:16px;text-align:center}
   .card{background:#25254a;border-radius:12px;padding:16px;margin:12px auto;max-width:640px}
   button{background:#ff9f1c;color:#000;border:none;border-radius:8px;padding:12px 16px;font-size:16px;font-weight:bold;cursor:pointer;margin:4px}
+  .arb{background:#4caf50;color:#fff}
   input{padding:12px;border-radius:8px;border:none;font-size:16px;width:70%;max-width:300px;margin:4px}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
   .tile{background:#3a3a6e;border-radius:10px;padding:14px 8px;min-height:50px;display:flex;align-items:center;justify-content:center;font-weight:bold}
@@ -63,6 +64,8 @@ if (!uid) { uid = Math.random().toString(36).slice(2, 12); localStorage.setItem(
 
 const code = (new URLSearchParams(location.search).get("room") || "").toUpperCase();
 let room = null, loaded = false, closingKey = null;
+// Durée choisie par l'hôte dans le salon (40 à 100 secondes)
+let chosenDur = 60;
 
 function genCode() { return Math.random().toString(36).slice(2, 8).toUpperCase(); }
 
@@ -84,12 +87,13 @@ async function joinRoom() {
   await db.ref(`rooms/${code}/players/${uid}`).update({ name, score: 0 });
 }
 async function startGame() {
+  const dur = Math.min(100, Math.max(40, Number(chosenDur) || 60));
   const ids = Object.keys(room.players).sort(() => Math.random() - 0.5);
-  await db.ref("rooms/" + code).update({ status: "playing", order: ids, turn: 0, used: {}, round: null, lastInfo: null });
+  await db.ref("rooms/" + code).update({ status: "playing", order: ids, turn: 0, used: {}, round: null, lastInfo: null, duration: dur });
 }
 async function pick(id) {
   await db.ref(`rooms/${code}/round`).transaction(cur =>
-    (cur && cur.charId) ? undefined : { charId: id, endsAt: Date.now() + 20000, winner: null, winAt: null });
+    (cur && cur.charId) ? undefined : { charId: id, endsAt: Date.now() + (room.duration || 60) * 1000, winner: null, winAt: null });
 }
 async function answer() {
   if (!room.round || !room.round.charId) return;
@@ -102,6 +106,14 @@ async function answer() {
     await db.ref(`rooms/${code}/players/${uid}/score`).transaction(s => (s || 0) + 10);
   } else {
     msg.textContent = "Trop tard, quelqu'un a déjà trouvé !";
+  }
+}
+// L'arbitre (l'hôte) valide la réponse dite en vocal
+async function arbitreValide(pid) {
+  const res = await db.ref(`rooms/${code}/round/winner`).transaction(cur => cur ? undefined : pid);
+  if (res.committed) {
+    await db.ref(`rooms/${code}/round/winAt`).set(Date.now());
+    await db.ref(`rooms/${code}/players/${pid}/score`).transaction(s => (s || 0) + 10);
   }
 }
 async function skipTurn() {
@@ -159,7 +171,10 @@ function render() {
       <p>Envoie ce lien à tes potes :</p>
       <input id="link" value="${location.origin}${location.pathname}?room=${code}" readonly onclick="this.select()">
       <p>${Object.keys(players).length} joueur(s) dans le salon</p>
-      ${isHost ? `<button onclick="startGame()">Lancer la partie</button>` : `<p>En attente de l'hôte…</p>`}
+      ${isHost ? `<p>⏱️ Temps par case : <b><span id="durVal">${chosenDur}</span> s</b></p>
+        <input type="range" id="dur" min="40" max="100" step="1" value="${chosenDur}" style="width:80%"
+          oninput="chosenDur=this.value;document.getElementById('durVal').textContent=this.value">
+        <br><button onclick="startGame()">Lancer la partie</button>` : `<p>En attente de l'hôte…</p>`}
     </div>${scoreCard}`;
 
   } else if (room.status === "playing") {
@@ -181,6 +196,12 @@ function render() {
           <input id="ans" placeholder="Son nom…" autocomplete="off"><br>
           <button onclick="answer()">Valider</button>
           <div class="msg" id="msg"></div>`;
+        if (isHost) {
+          body += `<div><p>🎙️ <b>Arbitre :</b> qui a trouvé ?</p>` +
+            Object.entries(players).map(([pid, p]) =>
+              `<button class="arb" onclick="arbitreValide('${pid}')">${esc(p.name)}</button>`).join("") +
+            `</div>`;
+        }
       }
     } else if (uid === picker) {
       body += `<p>🎯 <b>À toi de choisir une case !</b></p><div class="grid">` +
