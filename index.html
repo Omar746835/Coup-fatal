@@ -43,108 +43,108 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 // ===== 2. PERSONNAGES =====
-// img : lien direct de l'image (vide = un ❓ s'affiche)
+// img : lien direct de l'image (vide = ❓). Si le lien ne marche pas, ❓ s'affiche.
 const CHARACTERS = [
-  {id:"c1",cat:"Animé",name:"Naruto Uzumaki",img:""},
-  {id:"c2",cat:"Animé",name:"Sasuke Uchiha",img:""},
-  {id:"c3",cat:"Animé",name:"Sakura Haruno",img:""},
-  {id:"c4",cat:"Animé",name:"Kakashi Hatake",img:""},
-  {id:"c5",cat:"Animé",name:"Itachi Uchiha",img:""},
-  {id:"c6",cat:"Animé",name:"Gaara",img:""},
-  {id:"c7",cat:"Animé",name:"Hinata Hyuga",img:""},
-  {id:"c8",cat:"Animé",name:"Rock Lee",img:""},
-  {id:"c9",cat:"Animé",name:"Shikamaru Nara",img:""},
-  {id:"c10",cat:"Animé",name:"Jiraiya",img:""},
-  {id:"c11",cat:"Animé",name:"Minato Namikaze",img:""},
-  {id:"c12",cat:"Animé",name:"Madara Uchiha",img:""},
-  {id:"c13",cat:"Animé",name:"Obito Uchiha",img:""},
-  {id:"c14",cat:"Animé",name:"Nagato (Pain)",img:""},
-  {id:"c15",cat:"Animé",name:"Tsunade",img:""},
-  {id:"c16",cat:"Animé",name:"Orochimaru",img:""},
-  {id:"c17",cat:"Animé",name:"Neji Hyuga",img:""},
-  {id:"c18",cat:"Animé",name:"Boruto Uzumaki",img:""},
-  {id:"c19",cat:"Animé",name:"Goku",img:""},
-  {id:"c20",cat:"Animé",name:"Vegeta",img:""},
-  {id:"c21",cat:"Animé",name:"Gohan",img:""},
-  {id:"c22",cat:"Animé",name:"Piccolo",img:""},
-  {id:"c23",cat:"Animé",name:"Freezer",img:""},
-  {id:"c24",cat:"Animé",name:"Cell",img:""},
-  {id:"c25",cat:"Animé",name:"Majin Boo",img:""},
-  {id:"c26",cat:"Animé",name:"Trunks",img:""},
-  {id:"c27",cat:"Animé",name:"Krillin",img:""},
-  {id:"c28",cat:"Animé",name:"Bulma",img:""},
-  {id:"c29",cat:"Animé",name:"Levi Ackerman",img:""},
-  {id:"c30",cat:"Animé",name:"Eren Yeager",img:""},
-  {id:"c31",cat:"Animé",name:"Mikasa Ackerman",img:""},
-  {id:"c32",cat:"Animé",name:"Armin Arlert",img:""},
-  {id:"c33",cat:"Animé",name:"Erwin Smith",img:""},
-  {id:"c34",cat:"Animé",name:"Historia Reiss",img:""},
-  {id:"c35",cat:"Animé",name:"Reiner Braun",img:""},
-  {id:"c36",cat:"Animé",name:"Zeke Yeager",img:""},
-  {id:"c37",cat:"Animé",name:"Light Yagami",img:""},
-  {id:"c38",cat:"Animé",name:"L Lawliet",img:""},
-  {id:"c39",cat:"Animé",name:"Ryuk",img:""},
-  {id:"c40",cat:"Animé",name:"Misa Amane",img:""},
-  {id:"c41",cat:"Animé",name:"Edward Elric",img:""},
-  {id:"c42",cat:"Animé",name:"Alphonse Elric",img:""},
-  {id:"c43",cat:"Animé",name:"Roy Mustang",img:""},
-  {id:"c44",cat:"Animé",name:"Winry Rockbell",img:""},
-  {id:"c45",cat:"Animé",name:"Lelouch Lamperouge",img:""},
-  {id:"c46",cat:"Animé",name:"C.C.",img:""},
-  {id:"c47",cat:"Animé",name:"Suzaku Kururugi",img:""},
-  {id:"c48",cat:"Animé",name:"Kira Yamato",img:""},
-  {id:"c49",cat:"Animé",name:"Lacus Clyne",img:""},
-  {id:"c50",cat:"Animé",name:"Tanjiro Kamado",img:""},
-  {id:"c51",cat:"Animé",name:"Nezuko Kamado",img:""},
-  {id:"c52",cat:"Animé",name:"Zenitsu Agatsuma",img:""},
-  {id:"c53",cat:"Animé",name:"Inosuke Hashibira",img:""},
-  {id:"c54",cat:"Animé",name:"Giyu Tomioka",img:""},
-  {id:"c55",cat:"Animé",name:"Shinobu Kocho",img:""},
-  {id:"c56",cat:"Animé",name:"Kyojuro Rengoku",img:""},
-  {id:"c57",cat:"Animé",name:"Muzan Kibutsuji",img:""},
-  {id:"c58",cat:"Animé",name:"Gojo Satoru",img:""},
-  {id:"c59",cat:"Animé",name:"Yuji Itadori",img:""},
-  {id:"c60",cat:"Animé",name:"Megumi Fushiguro",img:""},
-  {id:"c61",cat:"Animé",name:"Nobara Kugisaki",img:""},
-  {id:"c62",cat:"Animé",name:"Sukuna",img:""},
-  {id:"c63",cat:"Animé",name:"Toji Fushiguro",img:""},
-  {id:"c64",cat:"Animé",name:"Denji",img:""},
-  {id:"c65",cat:"Animé",name:"Makima",img:""},
-  {id:"c66",cat:"Animé",name:"Power",img:""},
-  {id:"c67",cat:"Animé",name:"Aki Hayakawa",img:""},
-  {id:"c68",cat:"Animé",name:"Asta",img:""},
-  {id:"c69",cat:"Animé",name:"Yuno",img:""},
-  {id:"c70",cat:"Animé",name:"Meliodas",img:""},
-  {id:"c71",cat:"Animé",name:"Ban",img:""},
-  {id:"c72",cat:"Animé",name:"Escanor",img:""},
-  {id:"c73",cat:"Animé",name:"Saitama",img:""},
-  {id:"c74",cat:"Animé",name:"Genos",img:""},
-  {id:"c75",cat:"Animé",name:"Mob (Shigeo Kageyama)",img:""},
-  {id:"c76",cat:"Animé",name:"Ichigo Kurosaki",img:""},
-  {id:"c77",cat:"Animé",name:"Rukia Kuchiki",img:""},
-  {id:"c78",cat:"Animé",name:"Aizen Sosuke",img:""},
-  {id:"c79",cat:"Animé",name:"Byakuya Kuchiki",img:""},
-  {id:"c80",cat:"Animé",name:"Gintoki Sakata",img:""},
-  {id:"c81",cat:"Animé",name:"Kagura",img:""},
-  {id:"c82",cat:"Animé",name:"Shinpachi Shimura",img:""},
-  {id:"c83",cat:"Animé",name:"Yusuke Urameshi",img:""},
-  {id:"c84",cat:"Animé",name:"Hiei",img:""},
-  {id:"c85",cat:"Animé",name:"Kurama",img:""},
-  {id:"c86",cat:"Animé",name:"Kenshin Himura",img:""},
-  {id:"c87",cat:"Animé",name:"Spike Spiegel",img:""},
-  {id:"c88",cat:"Animé",name:"Faye Valentine",img:""},
-  {id:"c89",cat:"Animé",name:"Vash the Stampede",img:""},
-  {id:"c90",cat:"Animé",name:"Simon",img:""},
-  {id:"c91",cat:"Animé",name:"Kamina",img:""},
-  {id:"c92",cat:"Animé",name:"Yoko Littner",img:""},
-  {id:"c93",cat:"Animé",name:"Lupin III",img:""},
-  {id:"c94",cat:"Animé",name:"Ash Ketchum",img:""},
-  {id:"c95",cat:"Animé",name:"Pikachu",img:""},
-  {id:"c96",cat:"Animé",name:"Misty",img:""},
-  {id:"c97",cat:"Animé",name:"Brock",img:""},
-  {id:"c98",cat:"Animé",name:"Doraemon",img:""},
-  {id:"c99",cat:"Animé",name:"Nobita Nobi",img:""},
-  {id:"c100",cat:"Animé",name:"Sailor Moon",img:""}
+  {id:"c1",cat:"Animé",name:"Naruto Uzumaki",img:"https://cdn.myanimelist.net/images/characters/9/94731.jpg"},
+  {id:"c2",cat:"Animé",name:"Sasuke Uchiha",img:"https://cdn.myanimelist.net/images/characters/9/274737.jpg"},
+  {id:"c3",cat:"Animé",name:"Sakura Haruno",img:"https://cdn.myanimelist.net/images/characters/8/40256.jpg"},
+  {id:"c4",cat:"Animé",name:"Kakashi Hatake",img:"https://cdn.myanimelist.net/images/characters/2/54125.jpg"},
+  {id:"c5",cat:"Animé",name:"Itachi Uchiha",img:"https://cdn.myanimelist.net/images/characters/11/144937.jpg"},
+  {id:"c6",cat:"Animé",name:"Gaara",img:"https://cdn.myanimelist.net/images/characters/2/86483.jpg"},
+  {id:"c7",cat:"Animé",name:"Hinata Hyuga",img:"https://cdn.myanimelist.net/images/characters/5/74471.jpg"},
+  {id:"c8",cat:"Animé",name:"Rock Lee",img:"https://cdn.myanimelist.net/images/characters/3/54823.jpg"},
+  {id:"c9",cat:"Animé",name:"Shikamaru Nara",img:"https://cdn.myanimelist.net/images/characters/9/54825.jpg"},
+  {id:"c10",cat:"Animé",name:"Jiraiya",img:"https://cdn.myanimelist.net/images/characters/6/82903.jpg"},
+  {id:"c11",cat:"Animé",name:"Minato Namikaze",img:"https://cdn.myanimelist.net/images/characters/10/76807.jpg"},
+  {id:"c12",cat:"Animé",name:"Madara Uchiha",img:"https://cdn.myanimelist.net/images/characters/12/179267.jpg"},
+  {id:"c13",cat:"Animé",name:"Obito Uchiha",img:"https://cdn.myanimelist.net/images/characters/13/217985.jpg"},
+  {id:"c14",cat:"Animé",name:"Nagato (Pain)",img:"https://cdn.myanimelist.net/images/characters/11/72221.jpg"},
+  {id:"c15",cat:"Animé",name:"Tsunade",img:"https://cdn.myanimelist.net/images/characters/5/75193.jpg"},
+  {id:"c16",cat:"Animé",name:"Orochimaru",img:"https://cdn.myanimelist.net/images/characters/12/115165.jpg"},
+  {id:"c17",cat:"Animé",name:"Neji Hyuga",img:"https://cdn.myanimelist.net/images/characters/12/55519.jpg"},
+  {id:"c18",cat:"Animé",name:"Boruto Uzumaki",img:"https://cdn.myanimelist.net/images/characters/11/314151.jpg"},
+  {id:"c19",cat:"Animé",name:"Goku",img:"https://cdn.myanimelist.net/images/characters/16/53412.jpg"},
+  {id:"c20",cat:"Animé",name:"Vegeta",img:"https://cdn.myanimelist.net/images/characters/10/266071.jpg"},
+  {id:"c21",cat:"Animé",name:"Gohan",img:"https://cdn.myanimelist.net/images/characters/5/78641.jpg"},
+  {id:"c22",cat:"Animé",name:"Piccolo",img:"https://cdn.myanimelist.net/images/characters/10/75993.jpg"},
+  {id:"c23",cat:"Animé",name:"Freezer",img:"https://cdn.myanimelist.net/images/characters/5/309176.jpg"},
+  {id:"c24",cat:"Animé",name:"Cell",img:"https://cdn.myanimelist.net/images/characters/12/309177.jpg"},
+  {id:"c25",cat:"Animé",name:"Majin Boo",img:"https://cdn.myanimelist.net/images/characters/7/310065.jpg"},
+  {id:"c26",cat:"Animé",name:"Trunks",img:"https://cdn.myanimelist.net/images/characters/15/285702.jpg"},
+  {id:"c27",cat:"Animé",name:"Krillin",img:"https://cdn.myanimelist.net/images/characters/11/78635.jpg"},
+  {id:"c28",cat:"Animé",name:"Bulma",img:"https://cdn.myanimelist.net/images/characters/15/266075.jpg"},
+  {id:"c29",cat:"Animé",name:"Levi Ackerman",img:"https://cdn.myanimelist.net/images/characters/2/292044.jpg"},
+  {id:"c30",cat:"Animé",name:"Eren Yeager",img:"https://cdn.myanimelist.net/images/characters/9/233075.jpg"},
+  {id:"c31",cat:"Animé",name:"Mikasa Ackerman",img:"https://cdn.myanimelist.net/images/characters/3/259445.jpg"},
+  {id:"c32",cat:"Animé",name:"Armin Arlert",img:"https://cdn.myanimelist.net/images/characters/3/218617.jpg"},
+  {id:"c33",cat:"Animé",name:"Erwin Smith",img:"https://cdn.myanimelist.net/images/characters/8/238435.jpg"},
+  {id:"c34",cat:"Animé",name:"Historia Reiss",img:"https://cdn.myanimelist.net/images/characters/15/261021.jpg"},
+  {id:"c35",cat:"Animé",name:"Reiner Braun",img:"https://cdn.myanimelist.net/images/characters/8/247137.jpg"},
+  {id:"c36",cat:"Animé",name:"Zeke Yeager",img:"https://cdn.myanimelist.net/images/characters/8/318461.jpg"},
+  {id:"c37",cat:"Animé",name:"Light Yagami",img:"https://cdn.myanimelist.net/images/characters/6/62531.jpg"},
+  {id:"c38",cat:"Animé",name:"L Lawliet",img:"https://cdn.myanimelist.net/images/characters/3/97531.jpg"},
+  {id:"c39",cat:"Animé",name:"Ryuk",img:"https://cdn.myanimelist.net/images/characters/6/63141.jpg"},
+  {id:"c40",cat:"Animé",name:"Misa Amane",img:"https://cdn.myanimelist.net/images/characters/2/57605.jpg"},
+  {id:"c41",cat:"Animé",name:"Edward Elric",img:"https://cdn.myanimelist.net/images/characters/9/72641.jpg"},
+  {id:"c42",cat:"Animé",name:"Alphonse Elric",img:"https://cdn.myanimelist.net/images/characters/13/74087.jpg"},
+  {id:"c43",cat:"Animé",name:"Roy Mustang",img:"https://cdn.myanimelist.net/images/characters/11/72643.jpg"},
+  {id:"c44",cat:"Animé",name:"Winry Rockbell",img:"https://cdn.myanimelist.net/images/characters/5/72645.jpg"},
+  {id:"c45",cat:"Animé",name:"Lelouch Lamperouge",img:"https://cdn.myanimelist.net/images/characters/4/51457.jpg"},
+  {id:"c46",cat:"Animé",name:"C.C.",img:"https://cdn.myanimelist.net/images/characters/2/55589.jpg"},
+  {id:"c47",cat:"Animé",name:"Suzaku Kururugi",img:"https://cdn.myanimelist.net/images/characters/7/53775.jpg"},
+  {id:"c48",cat:"Animé",name:"Kira Yamato",img:"https://cdn.myanimelist.net/images/characters/4/53597.jpg"},
+  {id:"c49",cat:"Animé",name:"Lacus Clyne",img:"https://cdn.myanimelist.net/images/characters/7/51559.jpg"},
+  {id:"c50",cat:"Animé",name:"Tanjiro Kamado",img:"https://cdn.myanimelist.net/images/characters/3/426051.jpg"},
+  {id:"c51",cat:"Animé",name:"Nezuko Kamado",img:"https://cdn.myanimelist.net/images/characters/2/426053.jpg"},
+  {id:"c52",cat:"Animé",name:"Zenitsu Agatsuma",img:"https://cdn.myanimelist.net/images/characters/5/381512.jpg"},
+  {id:"c53",cat:"Animé",name:"Inosuke Hashibira",img:"https://cdn.myanimelist.net/images/characters/5/381514.jpg"},
+  {id:"c54",cat:"Animé",name:"Giyu Tomioka",img:"https://cdn.myanimelist.net/images/characters/8/381516.jpg"},
+  {id:"c55",cat:"Animé",name:"Shinobu Kocho",img:"https://cdn.myanimelist.net/images/characters/2/385070.jpg"},
+  {id:"c56",cat:"Animé",name:"Kyojuro Rengoku",img:"https://cdn.myanimelist.net/images/characters/10/424842.jpg"},
+  {id:"c57",cat:"Animé",name:"Muzan Kibutsuji",img:"https://cdn.myanimelist.net/images/characters/2/412217.jpg"},
+  {id:"c58",cat:"Animé",name:"Gojo Satoru",img:"https://cdn.myanimelist.net/images/characters/3/409605.jpg"},
+  {id:"c59",cat:"Animé",name:"Yuji Itadori",img:"https://cdn.myanimelist.net/images/characters/14/415174.jpg"},
+  {id:"c60",cat:"Animé",name:"Megumi Fushiguro",img:"https://cdn.myanimelist.net/images/characters/15/415175.jpg"},
+  {id:"c61",cat:"Animé",name:"Nobara Kugisaki",img:"https://cdn.myanimelist.net/images/characters/16/415176.jpg"},
+  {id:"c62",cat:"Animé",name:"Sukuna",img:"https://cdn.myanimelist.net/images/characters/15/415414.jpg"},
+  {id:"c63",cat:"Animé",name:"Toji Fushiguro",img:"https://cdn.myanimelist.net/images/characters/12/493393.jpg"},
+  {id:"c64",cat:"Animé",name:"Denji",img:"https://cdn.myanimelist.net/images/characters/11/424911.jpg"},
+  {id:"c65",cat:"Animé",name:"Makima",img:"https://cdn.myanimelist.net/images/characters/11/424912.jpg"},
+  {id:"c66",cat:"Animé",name:"Power",img:"https://cdn.myanimelist.net/images/characters/16/424916.jpg"},
+  {id:"c67",cat:"Animé",name:"Aki Hayakawa",img:"https://cdn.myanimelist.net/images/characters/9/424919.jpg"},
+  {id:"c68",cat:"Animé",name:"Asta",img:"https://cdn.myanimelist.net/images/characters/16/299092.jpg"},
+  {id:"c69",cat:"Animé",name:"Yuno",img:"https://cdn.myanimelist.net/images/characters/12/299094.jpg"},
+  {id:"c70",cat:"Animé",name:"Meliodas",img:"https://cdn.myanimelist.net/images/characters/3/260787.jpg"},
+  {id:"c71",cat:"Animé",name:"Ban",img:"https://cdn.myanimelist.net/images/characters/3/272301.jpg"},
+  {id:"c72",cat:"Animé",name:"Escanor",img:"https://cdn.myanimelist.net/images/characters/3/305537.jpg"},
+  {id:"c73",cat:"Animé",name:"Saitama",img:"https://cdn.myanimelist.net/images/characters/9/289053.jpg"},
+  {id:"c74",cat:"Animé",name:"Genos",img:"https://cdn.myanimelist.net/images/characters/10/289055.jpg"},
+  {id:"c75",cat:"Animé",name:"Mob (Shigeo Kageyama)",img:"https://cdn.myanimelist.net/images/characters/15/309530.jpg"},
+  {id:"c76",cat:"Animé",name:"Ichigo Kurosaki",img:"https://cdn.myanimelist.net/images/characters/5/50807.jpg"},
+  {id:"c77",cat:"Animé",name:"Rukia Kuchiki",img:"https://cdn.myanimelist.net/images/characters/8/55047.jpg"},
+  {id:"c78",cat:"Animé",name:"Aizen Sosuke",img:"https://cdn.myanimelist.net/images/characters/4/64415.jpg"},
+  {id:"c79",cat:"Animé",name:"Byakuya Kuchiki",img:"https://cdn.myanimelist.net/images/characters/5/71545.jpg"},
+  {id:"c80",cat:"Animé",name:"Gintoki Sakata",img:"https://cdn.myanimelist.net/images/characters/9/75841.jpg"},
+  {id:"c81",cat:"Animé",name:"Kagura",img:"https://cdn.myanimelist.net/images/characters/13/75845.jpg"},
+  {id:"c82",cat:"Animé",name:"Shinpachi Shimura",img:"https://cdn.myanimelist.net/images/characters/8/75843.jpg"},
+  {id:"c83",cat:"Animé",name:"Yusuke Urameshi",img:"https://cdn.myanimelist.net/images/characters/11/53935.jpg"},
+  {id:"c84",cat:"Animé",name:"Hiei",img:"https://cdn.myanimelist.net/images/characters/5/53939.jpg"},
+  {id:"c85",cat:"Animé",name:"Kurama",img:"https://cdn.myanimelist.net/images/characters/15/53941.jpg"},
+  {id:"c86",cat:"Animé",name:"Kenshin Himura",img:"https://cdn.myanimelist.net/images/characters/12/60453.jpg"},
+  {id:"c87",cat:"Animé",name:"Spike Spiegel",img:"https://cdn.myanimelist.net/images/characters/9/53163.jpg"},
+  {id:"c88",cat:"Animé",name:"Faye Valentine",img:"https://cdn.myanimelist.net/images/characters/15/53331.jpg"},
+  {id:"c89",cat:"Animé",name:"Vash the Stampede",img:"https://cdn.myanimelist.net/images/characters/16/50529.jpg"},
+  {id:"c90",cat:"Animé",name:"Simon",img:"https://cdn.myanimelist.net/images/characters/7/54503.jpg"},
+  {id:"c91",cat:"Animé",name:"Kamina",img:"https://cdn.myanimelist.net/images/characters/6/54501.jpg"},
+  {id:"c92",cat:"Animé",name:"Yoko Littner",img:"https://cdn.myanimelist.net/images/characters/8/54505.jpg"},
+  {id:"c93",cat:"Animé",name:"Lupin III",img:"https://cdn.myanimelist.net/images/characters/5/72579.jpg"},
+  {id:"c94",cat:"Animé",name:"Ash Ketchum",img:"https://cdn.myanimelist.net/images/characters/13/288151.jpg"},
+  {id:"c95",cat:"Animé",name:"Pikachu",img:"https://cdn.myanimelist.net/images/characters/9/131317.jpg"},
+  {id:"c96",cat:"Animé",name:"Misty",img:"https://cdn.myanimelist.net/images/characters/13/288153.jpg"},
+  {id:"c97",cat:"Animé",name:"Brock",img:"https://cdn.myanimelist.net/images/characters/9/288155.jpg"},
+  {id:"c98",cat:"Animé",name:"Doraemon",img:"https://cdn.myanimelist.net/images/characters/9/322137.jpg"},
+  {id:"c99",cat:"Animé",name:"Nobita Nobi",img:"https://cdn.myanimelist.net/images/characters/11/322139.jpg"},
+  {id:"c100",cat:"Animé",name:"Sailor Moon",img:"https://cdn.myanimelist.net/images/characters/10/79893.jpg"}
 ];
 
 const ROLES = ["arbitre", "j1", "j2"];
@@ -167,7 +167,7 @@ function nameOf(role) {
   const id = room?.roles?.[role];
   return id ? (room.players?.[id]?.name || "?") : "—";
 }
-// Temps restant d'un joueur. Le chrono ne tourne que pour le joueur dont c'est le tour.
+// Le chrono ne tourne que pour le joueur dont c'est le tour
 function remainOf(role, now = Date.now()) {
   const base = room?.remain?.[role] ?? 0;
   return (room?.status === "playing" && room.turn === role) ? base - (now - room.turnStart) : base;
@@ -224,7 +224,7 @@ async function startGame() {
   });
 }
 
-// L'arbitre dit "Bon" : le joueur actif a trouvé, c'est à l'autre de jouer
+// "Bon" : le joueur actif a trouvé, c'est à l'autre de jouer
 async function arbBon() {
   const role = room.turn, now = Date.now();
   const left = remainOf(role, now);
@@ -242,7 +242,7 @@ async function arbBon() {
   await ref().update({ remain, score, used, charId: next.id, turn: other, turnStart: now });
 }
 
-// L'arbitre dit "Pas bon" : même joueur, il reçoit un autre perso
+// "Pas bon" : même joueur, il reçoit un autre perso
 async function arbPasBon() {
   const role = room.turn, now = Date.now();
   const left = remainOf(role, now);
@@ -323,7 +323,10 @@ function gameHTML(players, isHost, mine) {
       <button class="ok" onclick="arbBon()">✅ Bon</button>
       <button class="bad" onclick="arbPasBon()">❌ Pas bon</button>`;
   } else {
-    const img = ch?.img ? `<img class="perso" src="${esc(ch.img)}">` : `<div class="big">❓</div>`;
+    // Si l'image ne charge pas, on affiche ❓ à la place de l'icône cassée
+    const img = ch?.img
+      ? `<img class="perso" src="${esc(ch.img)}" onerror="this.outerHTML='<div class=big>❓</div>'">`
+      : `<div class="big">❓</div>`;
     const msg = mine === turnRole
       ? `<p class="ok-txt">C'est ton tour : devine à l'oral !</p>`
       : `<p class="small">Tour de ${esc(nameOf(turnRole))}</p>`;
