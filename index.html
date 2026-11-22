@@ -8,18 +8,19 @@
   body{font-family:system-ui,sans-serif;background:#1b1b2f;color:#fff;margin:0;padding:16px;text-align:center}
   .card{background:#25254a;border-radius:12px;padding:16px;margin:12px auto;max-width:640px}
   button{background:#ff9f1c;color:#000;border:none;border-radius:8px;padding:12px 16px;font-size:16px;font-weight:bold;cursor:pointer;margin:4px}
-  .arb{background:#4caf50;color:#fff}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .ok{background:#4caf50;color:#fff}
+  .bad{background:#e53935;color:#fff}
   input{padding:12px;border-radius:8px;border:none;font-size:16px;width:70%;max-width:300px;margin:4px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
-  .tile{background:#3a3a6e;border-radius:10px;padding:14px 8px;min-height:50px;display:flex;align-items:center;justify-content:center;font-weight:bold}
-  .tile.click{cursor:pointer}
-  .tile.click:hover{background:#4d4d8f}
-  .tile.used{opacity:.25}
-  .perso{max-width:100%;max-height:320px;border-radius:10px;object-fit:contain}
+  .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .player{flex:1;min-width:140px;background:#1f1f3d;border-radius:10px;padding:12px;opacity:.6}
+  .player.active{opacity:1;border:2px solid #ff9f1c}
+  .clock{font-size:30px;font-weight:bold;color:#ff9f1c}
+  .perso{max-width:100%;max-height:300px;border-radius:10px;object-fit:contain}
   .big{font-size:64px}
-  .msg{color:#ff6b6b;min-height:20px}
-  .ok{color:#7CFC00;font-weight:bold}
-  .timer{font-size:28px;font-weight:bold;color:#ff9f1c}
+  .ok-txt{color:#7CFC00;font-weight:bold}
+  .name{font-size:28px;font-weight:bold;color:#ffd166;margin:8px 0}
+  .small{font-size:14px;opacity:.8}
 </style>
 </head>
 <body>
@@ -41,40 +42,151 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// ===== 2. TES PERSONNAGES =====
-// name : le nom à deviner. img : lien direct vers l'image (vide = un "?" s'affiche).
+// ===== 2. PERSONNAGES =====
+// img : lien direct de l'image (vide = un ❓ s'affiche)
 const CHARACTERS = [
-  { id: "c1", cat: "Ninjas",   name: "Perso 1", img: "" },
-  { id: "c2", cat: "Ninjas",   name: "Perso 2", img: "" },
-  { id: "c3", cat: "Ninjas",   name: "Perso 3", img: "" },
-  { id: "c4", cat: "Ninjas",   name: "Perso 4", img: "" },
-  { id: "c5", cat: "Sorciers", name: "Perso 5", img: "" },
-  { id: "c6", cat: "Sorciers", name: "Perso 6", img: "" },
-  { id: "c7", cat: "Sorciers", name: "Perso 7", img: "" },
-  { id: "c8", cat: "Sorciers", name: "Perso 8", img: "" }
+  {id:"c1",cat:"Animé",name:"Naruto Uzumaki",img:""},
+  {id:"c2",cat:"Animé",name:"Sasuke Uchiha",img:""},
+  {id:"c3",cat:"Animé",name:"Sakura Haruno",img:""},
+  {id:"c4",cat:"Animé",name:"Kakashi Hatake",img:""},
+  {id:"c5",cat:"Animé",name:"Itachi Uchiha",img:""},
+  {id:"c6",cat:"Animé",name:"Gaara",img:""},
+  {id:"c7",cat:"Animé",name:"Hinata Hyuga",img:""},
+  {id:"c8",cat:"Animé",name:"Rock Lee",img:""},
+  {id:"c9",cat:"Animé",name:"Shikamaru Nara",img:""},
+  {id:"c10",cat:"Animé",name:"Jiraiya",img:""},
+  {id:"c11",cat:"Animé",name:"Minato Namikaze",img:""},
+  {id:"c12",cat:"Animé",name:"Madara Uchiha",img:""},
+  {id:"c13",cat:"Animé",name:"Obito Uchiha",img:""},
+  {id:"c14",cat:"Animé",name:"Nagato (Pain)",img:""},
+  {id:"c15",cat:"Animé",name:"Tsunade",img:""},
+  {id:"c16",cat:"Animé",name:"Orochimaru",img:""},
+  {id:"c17",cat:"Animé",name:"Neji Hyuga",img:""},
+  {id:"c18",cat:"Animé",name:"Boruto Uzumaki",img:""},
+  {id:"c19",cat:"Animé",name:"Goku",img:""},
+  {id:"c20",cat:"Animé",name:"Vegeta",img:""},
+  {id:"c21",cat:"Animé",name:"Gohan",img:""},
+  {id:"c22",cat:"Animé",name:"Piccolo",img:""},
+  {id:"c23",cat:"Animé",name:"Freezer",img:""},
+  {id:"c24",cat:"Animé",name:"Cell",img:""},
+  {id:"c25",cat:"Animé",name:"Majin Boo",img:""},
+  {id:"c26",cat:"Animé",name:"Trunks",img:""},
+  {id:"c27",cat:"Animé",name:"Krillin",img:""},
+  {id:"c28",cat:"Animé",name:"Bulma",img:""},
+  {id:"c29",cat:"Animé",name:"Levi Ackerman",img:""},
+  {id:"c30",cat:"Animé",name:"Eren Yeager",img:""},
+  {id:"c31",cat:"Animé",name:"Mikasa Ackerman",img:""},
+  {id:"c32",cat:"Animé",name:"Armin Arlert",img:""},
+  {id:"c33",cat:"Animé",name:"Erwin Smith",img:""},
+  {id:"c34",cat:"Animé",name:"Historia Reiss",img:""},
+  {id:"c35",cat:"Animé",name:"Reiner Braun",img:""},
+  {id:"c36",cat:"Animé",name:"Zeke Yeager",img:""},
+  {id:"c37",cat:"Animé",name:"Light Yagami",img:""},
+  {id:"c38",cat:"Animé",name:"L Lawliet",img:""},
+  {id:"c39",cat:"Animé",name:"Ryuk",img:""},
+  {id:"c40",cat:"Animé",name:"Misa Amane",img:""},
+  {id:"c41",cat:"Animé",name:"Edward Elric",img:""},
+  {id:"c42",cat:"Animé",name:"Alphonse Elric",img:""},
+  {id:"c43",cat:"Animé",name:"Roy Mustang",img:""},
+  {id:"c44",cat:"Animé",name:"Winry Rockbell",img:""},
+  {id:"c45",cat:"Animé",name:"Lelouch Lamperouge",img:""},
+  {id:"c46",cat:"Animé",name:"C.C.",img:""},
+  {id:"c47",cat:"Animé",name:"Suzaku Kururugi",img:""},
+  {id:"c48",cat:"Animé",name:"Kira Yamato",img:""},
+  {id:"c49",cat:"Animé",name:"Lacus Clyne",img:""},
+  {id:"c50",cat:"Animé",name:"Tanjiro Kamado",img:""},
+  {id:"c51",cat:"Animé",name:"Nezuko Kamado",img:""},
+  {id:"c52",cat:"Animé",name:"Zenitsu Agatsuma",img:""},
+  {id:"c53",cat:"Animé",name:"Inosuke Hashibira",img:""},
+  {id:"c54",cat:"Animé",name:"Giyu Tomioka",img:""},
+  {id:"c55",cat:"Animé",name:"Shinobu Kocho",img:""},
+  {id:"c56",cat:"Animé",name:"Kyojuro Rengoku",img:""},
+  {id:"c57",cat:"Animé",name:"Muzan Kibutsuji",img:""},
+  {id:"c58",cat:"Animé",name:"Gojo Satoru",img:""},
+  {id:"c59",cat:"Animé",name:"Yuji Itadori",img:""},
+  {id:"c60",cat:"Animé",name:"Megumi Fushiguro",img:""},
+  {id:"c61",cat:"Animé",name:"Nobara Kugisaki",img:""},
+  {id:"c62",cat:"Animé",name:"Sukuna",img:""},
+  {id:"c63",cat:"Animé",name:"Toji Fushiguro",img:""},
+  {id:"c64",cat:"Animé",name:"Denji",img:""},
+  {id:"c65",cat:"Animé",name:"Makima",img:""},
+  {id:"c66",cat:"Animé",name:"Power",img:""},
+  {id:"c67",cat:"Animé",name:"Aki Hayakawa",img:""},
+  {id:"c68",cat:"Animé",name:"Asta",img:""},
+  {id:"c69",cat:"Animé",name:"Yuno",img:""},
+  {id:"c70",cat:"Animé",name:"Meliodas",img:""},
+  {id:"c71",cat:"Animé",name:"Ban",img:""},
+  {id:"c72",cat:"Animé",name:"Escanor",img:""},
+  {id:"c73",cat:"Animé",name:"Saitama",img:""},
+  {id:"c74",cat:"Animé",name:"Genos",img:""},
+  {id:"c75",cat:"Animé",name:"Mob (Shigeo Kageyama)",img:""},
+  {id:"c76",cat:"Animé",name:"Ichigo Kurosaki",img:""},
+  {id:"c77",cat:"Animé",name:"Rukia Kuchiki",img:""},
+  {id:"c78",cat:"Animé",name:"Aizen Sosuke",img:""},
+  {id:"c79",cat:"Animé",name:"Byakuya Kuchiki",img:""},
+  {id:"c80",cat:"Animé",name:"Gintoki Sakata",img:""},
+  {id:"c81",cat:"Animé",name:"Kagura",img:""},
+  {id:"c82",cat:"Animé",name:"Shinpachi Shimura",img:""},
+  {id:"c83",cat:"Animé",name:"Yusuke Urameshi",img:""},
+  {id:"c84",cat:"Animé",name:"Hiei",img:""},
+  {id:"c85",cat:"Animé",name:"Kurama",img:""},
+  {id:"c86",cat:"Animé",name:"Kenshin Himura",img:""},
+  {id:"c87",cat:"Animé",name:"Spike Spiegel",img:""},
+  {id:"c88",cat:"Animé",name:"Faye Valentine",img:""},
+  {id:"c89",cat:"Animé",name:"Vash the Stampede",img:""},
+  {id:"c90",cat:"Animé",name:"Simon",img:""},
+  {id:"c91",cat:"Animé",name:"Kamina",img:""},
+  {id:"c92",cat:"Animé",name:"Yoko Littner",img:""},
+  {id:"c93",cat:"Animé",name:"Lupin III",img:""},
+  {id:"c94",cat:"Animé",name:"Ash Ketchum",img:""},
+  {id:"c95",cat:"Animé",name:"Pikachu",img:""},
+  {id:"c96",cat:"Animé",name:"Misty",img:""},
+  {id:"c97",cat:"Animé",name:"Brock",img:""},
+  {id:"c98",cat:"Animé",name:"Doraemon",img:""},
+  {id:"c99",cat:"Animé",name:"Nobita Nobi",img:""},
+  {id:"c100",cat:"Animé",name:"Sailor Moon",img:""}
 ];
+
+const ROLES = ["arbitre", "j1", "j2"];
+const ROLE_LABEL = { arbitre: "Arbitre", j1: "Joueur 1", j2: "Joueur 2" };
 
 // ===== Outils =====
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
 let uid = localStorage.getItem("uid");
 if (!uid) { uid = Math.random().toString(36).slice(2, 12); localStorage.setItem("uid", uid); }
 
 const code = (new URLSearchParams(location.search).get("room") || "").toUpperCase();
-let room = null, loaded = false, closingKey = null;
-// Durée choisie par l'hôte dans le salon (40 à 100 secondes)
-let chosenDur = 60;
+let room = null, loaded = false, chosenDur = 60;
 
 function genCode() { return Math.random().toString(36).slice(2, 8).toUpperCase(); }
+function ref(path = "") { return db.ref(`rooms/${code}${path}`); }
+function myRole() { return room ? (ROLES.find(r => room.roles?.[r] === uid) || null) : null; }
+function nameOf(role) {
+  const id = room?.roles?.[role];
+  return id ? (room.players?.[id]?.name || "?") : "—";
+}
+// Temps restant d'un joueur. Le chrono ne tourne que pour le joueur dont c'est le tour.
+function remainOf(role, now = Date.now()) {
+  const base = room?.remain?.[role] ?? 0;
+  return (room?.status === "playing" && room.turn === role) ? base - (now - room.turnStart) : base;
+}
+function fmt(ms) { return Math.max(0, Math.ceil(ms / 1000)) + " s"; }
+function pickChar(exclude) {
+  const pool = CHARACTERS.filter(c => !exclude[c.id]);
+  return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+}
 
-// ===== Actions =====
+// ===== Salon =====
 async function createRoom() {
   const name = $("pseudo").value.trim();
   if (!name) return alert("Mets un pseudo !");
   const c = genCode();
-  await db.ref("rooms/" + c).set({ host: uid, status: "lobby", createdAt: Date.now(), players: { [uid]: { name, score: 0 } } });
+  await db.ref("rooms/" + c).set({
+    host: uid, status: "lobby", createdAt: Date.now(),
+    players: { [uid]: { name } }, roles: {}
+  });
   location.href = "?room=" + c;
 }
 function joinByCode() {
@@ -84,52 +196,72 @@ function joinByCode() {
 async function joinRoom() {
   const name = $("pseudo").value.trim();
   if (!name) return alert("Mets un pseudo !");
-  await db.ref(`rooms/${code}/players/${uid}`).update({ name, score: 0 });
+  await ref(`/players/${uid}`).update({ name });
 }
+async function claimRole(role) {
+  const res = await ref(`/roles/${role}`).transaction(cur => (cur && cur !== uid) ? undefined : uid);
+  if (!res.committed) return alert("Ce rôle est déjà pris !");
+  for (const r of ROLES) {
+    if (r !== role && room.roles?.[r] === uid) await ref(`/roles/${r}`).set(null);
+  }
+}
+async function releaseRole() {
+  const r = myRole();
+  if (r) await ref(`/roles/${r}`).set(null);
+}
+
+// ===== Partie =====
 async function startGame() {
-  const dur = Math.min(100, Math.max(40, Number(chosenDur) || 60));
-  const ids = Object.keys(room.players).sort(() => Math.random() - 0.5);
-  await db.ref("rooms/" + code).update({ status: "playing", order: ids, turn: 0, used: {}, round: null, lastInfo: null, duration: dur });
+  if (!ROLES.every(r => room.roles?.[r])) return alert("Il faut un Arbitre, un Joueur 1 et un Joueur 2.");
+  const ch = pickChar({});
+  if (!ch) return alert("Aucun perso disponible.");
+  const d = Math.min(100, Math.max(40, Number(chosenDur) || 60)) * 1000;
+  const now = Date.now();
+  await ref().update({
+    status: "playing", turn: "j1", turnStart: now,
+    remain: { j1: d, j2: d }, score: { j1: 0, j2: 0 },
+    used: {}, charId: ch.id, winner: null, reason: null
+  });
 }
-async function pick(id) {
-  await db.ref(`rooms/${code}/round`).transaction(cur =>
-    (cur && cur.charId) ? undefined : { charId: id, endsAt: Date.now() + (room.duration || 60) * 1000, winner: null, winAt: null });
-}
-async function answer() {
-  if (!room.round || !room.round.charId) return;
-  const ch = CHARACTERS.find(c => c.id === room.round.charId);
-  const msg = $("msg");
-  if (norm($("ans").value) !== norm(ch.name)) { msg.textContent = "Ce n'est pas le bon nom 😅"; return; }
-  const res = await db.ref(`rooms/${code}/round/winner`).transaction(cur => cur ? undefined : uid);
-  if (res.committed) {
-    await db.ref(`rooms/${code}/round/winAt`).set(Date.now());
-    await db.ref(`rooms/${code}/players/${uid}/score`).transaction(s => (s || 0) + 10);
-  } else {
-    msg.textContent = "Trop tard, quelqu'un a déjà trouvé !";
+
+// L'arbitre dit "Bon" : le joueur actif a trouvé, c'est à l'autre de jouer
+async function arbBon() {
+  const role = room.turn, now = Date.now();
+  const left = remainOf(role, now);
+  const other = role === "j1" ? "j2" : "j1";
+  const used = { ...(room.used || {}), [room.charId]: true };
+  const remain = { ...room.remain, [role]: Math.max(0, left) };
+  const score = { ...(room.score || {}), [role]: (room.score?.[role] || 0) + 1 };
+  const next = pickChar(used);
+  if (!next) {
+    return ref().update({
+      status: "finished", remain, score, used, charId: null,
+      winner: remain.j1 >= remain.j2 ? "j1" : "j2", reason: "Plus de persos !"
+    });
   }
+  await ref().update({ remain, score, used, charId: next.id, turn: other, turnStart: now });
 }
-// L'arbitre (l'hôte) valide la réponse dite en vocal
-async function arbitreValide(pid) {
-  const res = await db.ref(`rooms/${code}/round/winner`).transaction(cur => cur ? undefined : pid);
-  if (res.committed) {
-    await db.ref(`rooms/${code}/round/winAt`).set(Date.now());
-    await db.ref(`rooms/${code}/players/${pid}/score`).transaction(s => (s || 0) + 10);
+
+// L'arbitre dit "Pas bon" : même joueur, il reçoit un autre perso
+async function arbPasBon() {
+  const role = room.turn, now = Date.now();
+  const left = remainOf(role, now);
+  const used = { ...(room.used || {}), [room.charId]: true };
+  const remain = { ...room.remain, [role]: Math.max(0, left) };
+  const next = pickChar(used);
+  if (!next) {
+    return ref().update({
+      status: "finished", remain, used, charId: null,
+      winner: remain.j1 >= remain.j2 ? "j1" : "j2", reason: "Plus de persos !"
+    });
   }
+  await ref().update({ remain, used, charId: next.id, turnStart: now });
 }
-async function skipTurn() {
-  await db.ref("rooms/" + code).update({ turn: (room.turn || 0) + 1 });
-}
-// Seul l'hôte exécute ceci (évite les conflits)
-async function closeRound(r) {
-  const ch = CHARACTERS.find(c => c.id === r.charId);
-  const used = { ...(room.used || {}), [r.charId]: true };
-  const done = Object.keys(used).length >= CHARACTERS.length;
-  await db.ref("rooms/" + code).update({
-    used,
-    round: null,
-    turn: (room.turn || 0) + 1,
-    status: done ? "finished" : "playing",
-    lastInfo: { answer: ch.name, winner: r.winner ? (room.players[r.winner]?.name || "?") : null }
+
+async function rejouer() {
+  await ref().update({
+    status: "lobby", used: null, charId: null, turn: null, turnStart: null,
+    remain: null, score: null, winner: null, reason: null
   });
 }
 
@@ -143,6 +275,68 @@ function renderHome() {
     <button onclick="joinByCode()">Rejoindre</button></div>`;
 }
 
+function lobbyHTML(players, isHost, mine) {
+  const rolesHTML = ROLES.map(r => {
+    const taken = room.roles?.[r];
+    const who = taken ? (players[taken]?.name || "?") : "libre";
+    let btn = "";
+    if (mine === r) btn = `<button onclick="releaseRole()">Quitter ce rôle</button>`;
+    else if (!taken) btn = `<button onclick="claimRole('${r}')">Choisir ${ROLE_LABEL[r]}</button>`;
+    return `<p><b>${ROLE_LABEL[r]}</b> : ${esc(who)}<br>${btn}</p>`;
+  }).join("");
+  const ready = ROLES.every(r => room.roles?.[r]);
+  return `<div class="card"><h2>Salon ${code}</h2>
+    <p>Envoie ce lien à tes potes :</p>
+    <input value="${location.origin}${location.pathname}?room=${code}" readonly onclick="this.select()">
+    <p>${Object.keys(players).length} joueur(s) dans le salon</p></div>
+    <div class="card"><h3>Rôles</h3>${rolesHTML}</div>
+    ${isHost ? `<div class="card">
+      <p>⏱️ Temps par joueur : <b><span id="durVal">${chosenDur}</span> s</b></p>
+      <input type="range" min="40" max="100" value="${chosenDur}" style="width:80%"
+        oninput="chosenDur=this.value;$('durVal').textContent=this.value"><br>
+      <button onclick="startGame()" ${ready ? "" : "disabled"}>Lancer la partie</button>
+      ${ready ? "" : `<p class="small">Il faut un Arbitre, un Joueur 1 et un Joueur 2.</p>`}
+    </div>` : `<p>En attente de l'hôte…</p>`}`;
+}
+
+function gameHTML(players, isHost, mine) {
+  const now = Date.now();
+  const turnRole = room.turn;
+  const playing = room.status === "playing";
+  const ch = room.charId ? CHARACTERS.find(c => c.id === room.charId) : null;
+
+  const playerBox = r => `<div class="player ${playing && turnRole === r ? "active" : ""}">
+      <b>${ROLE_LABEL[r]}</b><br>${esc(nameOf(r))}<br>
+      <div class="clock" id="clock-${r}">${fmt(remainOf(r, now))}</div>
+      ${playing && turnRole === r ? "🎯 À lui de deviner" : ""}
+    </div>`;
+
+  let center = "";
+  if (room.status === "finished") {
+    center = `<h2>🏁 Gagnant : ${ROLE_LABEL[room.winner] || "?"} (${esc(nameOf(room.winner))})</h2>
+      <p>${esc(room.reason || "")}</p>
+      ${isHost ? `<button onclick="rejouer()">Rejouer</button>` : ""}`;
+  } else if (mine === "arbitre") {
+    center = `<p>🎙️ <b>Arbitre</b> : le perso est</p>
+      <div class="name">${ch ? esc(ch.name) : "—"}</div>
+      <p class="small">${esc(nameOf(turnRole))} doit le deviner à l'oral.</p>
+      <button class="ok" onclick="arbBon()">✅ Bon</button>
+      <button class="bad" onclick="arbPasBon()">❌ Pas bon</button>`;
+  } else {
+    const img = ch?.img ? `<img class="perso" src="${esc(ch.img)}">` : `<div class="big">❓</div>`;
+    const msg = mine === turnRole
+      ? `<p class="ok-txt">C'est ton tour : devine à l'oral !</p>`
+      : `<p class="small">Tour de ${esc(nameOf(turnRole))}</p>`;
+    center = `${img}${msg}`;
+  }
+
+  return `<div class="card"><h2>Partie ${code}</h2>
+    <div class="row">${playerBox("j1")}${playerBox("j2")}</div>
+    <p class="small">Bons persos : J1 ${room.score?.j1 || 0} – J2 ${room.score?.j2 || 0}</p>
+  </div>
+  <div class="card">${center}</div>`;
+}
+
 function render() {
   if (!code) return renderHome();
   if (!loaded) return;
@@ -150,101 +344,44 @@ function render() {
     $("app").innerHTML = `<div class="card"><p>Partie introuvable 😕</p><a href="./" style="color:#ff9f1c">Retour à l'accueil</a></div>`;
     return;
   }
-  const oldAns = $("ans") ? $("ans").value : "";
   const players = room.players || {};
-  const isHost = room.host === uid;
-
   if (!players[uid]) {
     $("app").innerHTML = `<div class="card"><h2>Rejoindre la partie ${code}</h2>
       <input id="pseudo" placeholder="Ton pseudo"><br>
       <button onclick="joinRoom()">Entrer</button></div>`;
     return;
   }
-
-  const scores = Object.values(players).sort((a, b) => b.score - a.score)
-    .map(p => `<li>${esc(p.name)} : <b>${p.score}</b> pts</li>`).join("");
-  const scoreCard = `<div class="card"><h3>Scores</h3><ul style="list-style:none;padding:0">${scores}</ul></div>`;
-  let html = "";
-
-  if (room.status === "lobby") {
-    html = `<div class="card"><h2>Salon ${code}</h2>
-      <p>Envoie ce lien à tes potes :</p>
-      <input id="link" value="${location.origin}${location.pathname}?room=${code}" readonly onclick="this.select()">
-      <p>${Object.keys(players).length} joueur(s) dans le salon</p>
-      ${isHost ? `<p>⏱️ Temps par case : <b><span id="durVal">${chosenDur}</span> s</b></p>
-        <input type="range" id="dur" min="40" max="100" step="1" value="${chosenDur}" style="width:80%"
-          oninput="chosenDur=this.value;document.getElementById('durVal').textContent=this.value">
-        <br><button onclick="startGame()">Lancer la partie</button>` : `<p>En attente de l'hôte…</p>`}
-    </div>${scoreCard}`;
-
-  } else if (room.status === "playing") {
-    const order = room.order || [];
-    const picker = order[(room.turn || 0) % order.length];
-    const used = room.used || {};
-    const round = (room.round && room.round.charId) ? room.round : null;
-    let body = "";
-
-    if (round) {
-      const ch = CHARACTERS.find(c => c.id === round.charId);
-      const revealed = !!round.winner || Date.now() > round.endsAt;
-      body += ch.img ? `<img class="perso" src="${esc(ch.img)}">` : `<div class="big">❓</div>`;
-      body += `<p>${revealed ? `Réponse : <b>${esc(ch.name)}</b>` : "Qui est ce perso ?"}</p>`;
-      if (round.winner) {
-        body += `<p class="ok">🏆 ${esc(players[round.winner]?.name)} a trouvé !</p>`;
-      } else if (!revealed) {
-        body += `<div class="timer" id="timer"></div>
-          <input id="ans" placeholder="Son nom…" autocomplete="off"><br>
-          <button onclick="answer()">Valider</button>
-          <div class="msg" id="msg"></div>`;
-        if (isHost) {
-          body += `<div><p>🎙️ <b>Arbitre :</b> qui a trouvé ?</p>` +
-            Object.entries(players).map(([pid, p]) =>
-              `<button class="arb" onclick="arbitreValide('${pid}')">${esc(p.name)}</button>`).join("") +
-            `</div>`;
-        }
-      }
-    } else if (uid === picker) {
-      body += `<p>🎯 <b>À toi de choisir une case !</b></p><div class="grid">` +
-        CHARACTERS.map(c => used[c.id]
-          ? `<div class="tile used">✔</div>`
-          : `<div class="tile click" onclick="pick('${c.id}')">${esc(c.cat)}</div>`).join("") +
-        `</div>`;
-    } else {
-      body += `<p>C'est à <b>${esc(players[picker]?.name)}</b> de choisir une case…</p>`;
-    }
-
-    if (room.lastInfo && !round) {
-      const li = room.lastInfo;
-      body += `<p>Dernier perso : <b>${esc(li.answer)}</b>${li.winner ? ` (trouvé par ${esc(li.winner)})` : " (personne n'a trouvé)"}</p>`;
-    }
-    if (isHost && !round) body += `<br><button onclick="skipTurn()">Passer ce tour</button>`;
-    html = `<div class="card"><h2>Partie ${code}</h2>${body}</div>${scoreCard}`;
-
-  } else {
-    html = `<div class="card"><h2>🏁 Partie terminée !</h2></div>${scoreCard}`;
-  }
-
-  $("app").innerHTML = html;
-  if ($("ans") && oldAns) $("ans").value = oldAns;
+  const isHost = room.host === uid;
+  const mine = myRole();
+  $("app").innerHTML = room.status === "lobby"
+    ? lobbyHTML(players, isHost, mine)
+    : gameHTML(players, isHost, mine);
 }
 
 // ===== Écoute en temps réel =====
 if (code) {
-  db.ref("rooms/" + code).on("value", snap => { room = snap.val(); loaded = true; render(); });
+  ref().on("value", snap => { room = snap.val(); loaded = true; render(); });
 } else {
   render();
 }
 
-// ===== Minuteur + gestion automatique par l'hôte =====
+// ===== Chronos + fin de temps =====
 setInterval(() => {
-  if (!room || !room.round || !room.round.charId || room.status !== "playing") return;
-  const r = room.round;
-  const t = $("timer");
-  if (t) t.textContent = "⏱️ " + Math.max(0, Math.ceil((r.endsAt - Date.now()) / 1000)) + " s";
-  if (room.host !== uid) return;
+  if (!room) return;
   const now = Date.now();
-  const due = r.winner ? (r.winAt && now > r.winAt + 4000) : (now > r.endsAt + 3000);
-  if (due && closingKey !== r.endsAt) { closingKey = r.endsAt; closeRound(r); }
+  ["j1", "j2"].forEach(r => {
+    const el = $("clock-" + r);
+    if (el) el.textContent = fmt(remainOf(r, now));
+  });
+  if (room.status === "playing" && room.turn && remainOf(room.turn, now) <= 0) {
+    const loser = room.turn;
+    const winner = loser === "j1" ? "j2" : "j1";
+    ref().update({
+      status: "finished", winner,
+      reason: `Temps écoulé pour ${ROLE_LABEL[loser]}`,
+      remain: { ...room.remain, [loser]: 0 }
+    });
+  }
 }, 250);
 </script>
 </body>
