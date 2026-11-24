@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test solo</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#1b1b2f;color:#fff;text-align:center;padding:16px}
+  .card{background:#25254a;border-radius:12px;padding:16px;max-width:640px;margin:12px auto}
+  button{background:#ff9f1c;border:none;border-radius:8px;padding:12px 16px;font-size:16px;font-weight:bold;margin:4px;cursor:pointer}
+  .ok{background:#4caf50;color:#fff}
+  .bad{background:#e53935;color:#fff}
+  .perso{max-width:100%;max-height:300px;border-radius:10px;object-fit:contain}
+  .big{font-size:64px}
+  .clock{font-size:28px;font-weight:bold;color:#ff9f1c}
+  .name{font-size:24px;font-weight:bold;color:#ffd166;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>Test solo</h2>
+  <div class="clock" id="clock">Appuie sur Recommencer</div>
+  <p id="turn"></p>
+  <div id="img"></div>
+  <p class="name" id="name"></p>
+  <button class="ok" onclick="bon()">✅ Bon</button>
+  <button class="bad" onclick="pasBon()">❌ Pas bon</button>
+  <br><button onclick="restart()">Recommencer</button>
+</div>
+
+<script>
+const BASE = "https://omar746835.github.io/coup-fatal/";
+const CHARS = [
+  ["Naruto Uzumaki","IMG_8348.jpeg"],
+  ["Sasuke Uchiha","IMG_8350.jpeg"],
+  ["Sakura Haruno","IMG_8351.jpeg"],
+  ["Kakashi Hatake","IMG_8352.jpeg"],
+  ["Itachi Uchiha","IMG_8353.jpeg"],
+  ["Goku","IMG_8359.jpeg"],
+  ["Vegeta","IMG_8360.jpeg"],
+  ["Light Yagami","IMG_8419.jpeg"]
+].map(([name, file]) => ({ name, img: BASE + file }));
+
+let turn = 0;            // 0 = Joueur 1, 1 = Joueur 2
+let left = [60000, 60000];
+let last = 0, running = false, cur = null;
+
+function restart() {
+  turn = 0; left = [60000, 60000];
+  running = true; last = Date.now();
+  next();
+}
+function next() {
+  cur = CHARS[Math.floor(Math.random() * CHARS.length)];
+  document.getElementById("img").innerHTML =
+    `<img class="perso" src="${cur.img}" onerror="this.outerHTML='<div class=big>❓</div>'">`;
+  document.getElementById("name").textContent = cur.name;
+  document.getElementById("turn").textContent = "Tour du Joueur " + (turn + 1);
+  show();
+}
+function bon() {
+  if (!running) return;
+  turn = 1 - turn;   // c'est à l'autre de jouer
+  next();
+}
+function pasBon() {
+  if (!running) return;
+  next();            // même joueur, autre perso
+}
+function show() {
+  document.getElementById("clock").textContent =
+    `J1 : ${Math.ceil(left[0]/1000)} s  |  J2 : ${Math.ceil(left[1]/1000)} s`;
+}
+// Le chrono ne tourne que pour le joueur dont c'est le tour
+setInterval(() => {
+  if (!running) return;
+  const now = Date.now();
+  left[turn] -= now - last;
+  last = now;
+  if (left[turn] <= 0) {
+    left[turn] = 0;
+    running = false;
+    document.getElementById("turn").textContent = "Temps écoulé pour le Joueur " + (turn + 1) + " : il a perdu !";
+  }
+  show();
+}, 250);
+</script>
+</body>
+</html>
