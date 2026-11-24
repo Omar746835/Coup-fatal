@@ -138,9 +138,9 @@ const CHARACTERS = [
   {id:"c91",cat:"Animé",name:"Hisoka",img:BASE+"IMG_8441.jpeg"},
   {id:"c92",cat:"Animé",name:"Chrollo Lucilfer",img:BASE+"IMG_8442.jpeg"},
   {id:"c93",cat:"Animé",name:"Jotaro Kujo",img:BASE+"IMG_8443.jpeg"},
-  {id:"c94",cat:"Animé",name:"Giorno Giovanna",img:BASE+"IMG_8444.jpeg"},
+  {id:"c94",cat:"Animé",name:"Dio Brando",img:BASE+"IMG_8444.jpeg"},
   {id:"c95",cat:"Animé",name:"Joseph Joestar",img:BASE+"IMG_8445.jpeg"},
-  {id:"c96",cat:"Animé",name:"Dio Brando",img:BASE+"IMG_8446.jpeg"},
+  {id:"c96",cat:"Animé",name:"Giorno Giovanna",img:BASE+"IMG_8446.jpeg"},
   {id:"c97",cat:"Animé",name:"Josuke Higashikata",img:BASE+"IMG_8447.jpeg"},
   {id:"c98",cat:"Animé",name:"Ichigo Kurosaki",img:BASE+"IMG_8448.jpeg"}
 ];
@@ -309,25 +309,27 @@ function gameHTML(players, isHost, mine) {
       ${playing && turnRole === r ? "🎯 À lui de deviner" : ""}
     </div>`;
 
+  const imgHTML = ch?.img
+    ? `<img class="perso" src="${esc(ch.img)}" onerror="this.outerHTML='<div class=big>❓</div>'">`
+    : `<div class="big">❓</div>`;
+
   let center = "";
   if (room.status === "finished") {
     center = `<h2>🏁 Gagnant : ${ROLE_LABEL[room.winner] || "?"} (${esc(nameOf(room.winner))})</h2>
       <p>${esc(room.reason || "")}</p>
       ${isHost ? `<button onclick="rejouer()">Rejouer</button>` : ""}`;
   } else if (mine === "arbitre") {
-    center = `<p>🎙️ <b>Arbitre</b> : le perso est</p>
+    center = `${imgHTML}
+      <p>🎙️ <b>Arbitre</b> : le perso est</p>
       <div class="name">${ch ? esc(ch.name) : "—"}</div>
       <p class="small">${esc(nameOf(turnRole))} doit le deviner à l'oral.</p>
       <button class="ok" onclick="arbBon()">✅ Bon</button>
       <button class="bad" onclick="arbPasBon()">❌ Pas bon</button>`;
   } else {
-    const img = ch?.img
-      ? `<img class="perso" src="${esc(ch.img)}" onerror="this.outerHTML='<div class=big>❓</div>'">`
-      : `<div class="big">❓</div>`;
     const msg = mine === turnRole
       ? `<p class="ok-txt">C'est ton tour : devine à l'oral !</p>`
       : `<p class="small">Tour de ${esc(nameOf(turnRole))}</p>`;
-    center = `${img}${msg}`;
+    center = `${imgHTML}${msg}`;
   }
 
   return `<div class="card"><h2>Partie ${code}</h2>
