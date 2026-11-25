@@ -4,27 +4,61 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Coup Fatal Anime</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lilita+One&display=swap" rel="stylesheet">
 <style>
-  body{font-family:system-ui,sans-serif;background:#1b1b2f;color:#fff;margin:0;padding:16px;text-align:center}
-  .card{background:#25254a;border-radius:12px;padding:16px;margin:12px auto;max-width:640px}
-  button{background:#ff9f1c;color:#000;border:none;border-radius:8px;padding:12px 16px;font-size:16px;font-weight:bold;cursor:pointer;margin:4px}
-  button:disabled{opacity:.4;cursor:not-allowed}
-  .ok{background:#4caf50;color:#fff}
-  .bad{background:#e53935;color:#fff}
-  input{padding:12px;border-radius:8px;border:none;font-size:16px;width:70%;max-width:300px;margin:4px}
-  .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-  .player{flex:1;min-width:140px;background:#1f1f3d;border-radius:10px;padding:12px;opacity:.6}
-  .player.active{opacity:1;border:2px solid #ff9f1c}
-  .clock{font-size:30px;font-weight:bold;color:#ff9f1c}
-  .perso{max-width:100%;max-height:300px;border-radius:10px;object-fit:contain}
-  .big{font-size:64px}
-  .ok-txt{color:#7CFC00;font-weight:bold}
-  .name{font-size:28px;font-weight:bold;color:#ffd166;margin:8px 0}
-  .small{font-size:14px;opacity:.8}
+  :root{--card:#111a36;--line:#26345e;--gold:#c9a13b;--gold2:#f0c75e;--green:#5dbb63;--green2:#2f7a36;--blue:#4a6fe0;--red:#e53935;--ok:#4caf50;--txt:#eef2ff;--mut:#a9b4d8}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;color:var(--txt);font-family:'Lilita One',Arial,sans-serif;background:radial-gradient(ellipse at 50% 0%,#1a2a5e 0%,#0b1126 55%,#060915 100%);padding:14px;text-align:center}
+  .bang{font-family:'Bangers',Impact,sans-serif;letter-spacing:2px;font-weight:400;margin:0}
+  .wrap{max-width:460px;margin:0 auto}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0;text-align:left;box-shadow:0 12px 30px rgba(0,0,0,.4)}
+  .panel.c{text-align:center}
+  .hero{display:flex;gap:14px;align-items:center;margin-bottom:8px}
+  .logo{width:72px;height:72px;border-radius:18px;background:var(--blue);display:grid;place-items:center;font-size:38px;flex:none;box-shadow:0 6px 0 #2a4aa0}
+  h1.bang{font-size:44px;line-height:.95}
+  .sub{color:var(--mut);font-size:17px;line-height:1.4;margin:10px 0}
+  h2.sec{font-size:24px;margin:16px 0 8px;color:#e8ecff}
+  .step{display:flex;gap:12px;margin:12px 0}
+  .num{width:42px;height:42px;border-radius:50%;background:linear-gradient(#e0b54e,#a9822b);display:grid;place-items:center;font-family:'Bangers',Impact;font-size:24px;color:#fff;flex:none;box-shadow:0 3px 0 #6e541b}
+  .step b{display:block;font-size:19px}
+  .step span{color:var(--mut);font-size:15px;line-height:1.35}
+  .btn{display:block;width:100%;border:none;border-radius:8px;padding:14px 12px;font-family:'Bangers',Impact,sans-serif;font-size:26px;letter-spacing:2px;color:#fff;background:linear-gradient(#6ccc70,var(--green2));box-shadow:0 6px 0 #1d4f22;cursor:pointer;margin:10px 0}
+  .btn:active{transform:translateY(3px);box-shadow:0 3px 0 #1d4f22}
+  .btn.gold{background:linear-gradient(#f2d06a,#b8892a);box-shadow:0 6px 0 #6e541b;color:#1a1204}
+  .btn.red{background:linear-gradient(#ef5350,#b71c1c);box-shadow:0 6px 0 #6b0f0f}
+  .btn.blue{background:linear-gradient(#5f86ff,#2e4fb8);box-shadow:0 6px 0 #1b3078}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .arb-line{display:flex;gap:8px;justify-content:center}
+  .arb-line .btn{width:48%}
+  input:not([type=range]){width:100%;padding:13px;border-radius:8px;border:1px solid var(--line);background:#0b1330;color:#fff;font-size:18px;font-family:'Lilita One',Arial;margin:6px 0}
+  input[type=range]{width:100%;accent-color:var(--gold2)}
+  .note{background:#1c2748;border-radius:8px;padding:10px 12px;color:var(--mut);font-size:14px;margin:10px 0}
+  .players{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+  .prow{display:flex;justify-content:space-between;align-items:center;background:#0c1431;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:18px}
+  .badge{font-size:13px;padding:3px 9px;border-radius:999px;background:var(--gold);color:#1a1204;font-family:'Bangers',Impact;letter-spacing:1px}
+  .badge.g{background:var(--green2);color:#fff}
+  .board{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .pl{flex:1 1 100px;max-width:150px;background:#0c1431;border:2px solid var(--line);border-radius:12px;padding:8px;opacity:.7;transition:all .3s}
+  .pl.on{opacity:1;border-color:var(--gold2);box-shadow:0 0 14px rgba(240,199,94,.35)}
+  .pn{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pc{font-family:'Bangers',Impact;font-size:28px;color:var(--gold2)}
+  .pc.low{color:var(--red);animation:blink .5s infinite alternate}
+  .pscore{font-size:13px;color:var(--mut)}
+  .frame{margin:12px auto;max-width:360px;border-radius:16px;border:6px solid #2a3868;background:#070c1f;padding:6px;transition:border-color .25s,box-shadow .25s}
+  .frame img{display:block;width:100%;max-height:340px;object-fit:contain;border-radius:10px}
+  .frame .q{font-family:'Bangers',Impact;font-size:96px;padding:50px 0;color:#7d8ab8}
+  .frame.fb-ok{border-color:var(--ok);box-shadow:0 0 0 4px rgba(76,175,80,.35),0 0 30px rgba(76,175,80,.7);animation:pop .45s ease}
+  .frame.fb-bad{border-color:var(--red);box-shadow:0 0 0 4px rgba(229,57,53,.35),0 0 30px rgba(229,57,53,.7);animation:shake .45s ease}
+  .name{font-family:'Bangers',Impact;font-size:34px;letter-spacing:2px;color:var(--gold2);margin:6px 0;min-height:40px;text-shadow:0 3px 0 #5b4415}
+  .result{font-size:20px;margin:8px 0;min-height:28px}
+  .ok-t{color:#8ef08e}.bad-t{color:#ff8a80}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+  @keyframes blink{from{opacity:1}to{opacity:.35}}
 </style>
 </head>
 <body>
-<div id="app"></div>
+<div class="wrap" id="app"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -45,346 +79,425 @@ const db = firebase.database();
 // ===== 2. PERSONNAGES (images sur ton dépôt GitHub) =====
 const BASE = "https://raw.githubusercontent.com/Omar746835/Coup-fatal/refs/heads/main/";
 const CHARACTERS = [
-  {id:"c1",cat:"Animé",name:"Naruto Uzumaki",img:BASE+"IMG_8348.jpeg"},
-  {id:"c2",cat:"Animé",name:"Sasuke Uchiha",img:BASE+"IMG_8350.jpeg"},
-  {id:"c3",cat:"Animé",name:"Sakura Haruno",img:BASE+"IMG_8351.jpeg"},
-  {id:"c4",cat:"Animé",name:"Kakashi Hatake",img:BASE+"IMG_8352.jpeg"},
-  {id:"c5",cat:"Animé",name:"Itachi Uchiha",img:BASE+"IMG_8353.jpeg"},
-  {id:"c6",cat:"Animé",name:"Hinata Hyuga",img:BASE+"IMG_8354.webp"},
-  {id:"c7",cat:"Animé",name:"Gaara",img:BASE+"IMG_8355.jpeg"},
-  {id:"c8",cat:"Animé",name:"Jiraiya",img:BASE+"IMG_8356.jpeg"},
-  {id:"c9",cat:"Animé",name:"Madara Uchiha",img:BASE+"IMG_8357.jpeg"},
-  {id:"c10",cat:"Animé",name:"Minato Namikaze",img:BASE+"IMG_8358.jpeg"},
-  {id:"c11",cat:"Animé",name:"Goku",img:BASE+"IMG_8359.jpeg"},
-  {id:"c12",cat:"Animé",name:"Vegeta",img:BASE+"IMG_8360.jpeg"},
-  {id:"c13",cat:"Animé",name:"Goku",img:BASE+"IMG_8361.jpeg"},
-  {id:"c14",cat:"Animé",name:"Trunks",img:BASE+"IMG_8362.jpeg"},
-  {id:"c15",cat:"Animé",name:"Piccolo",img:BASE+"IMG_8363.jpeg"},
-  {id:"c16",cat:"Animé",name:"Bulma",img:BASE+"IMG_8364.jpeg"},
-  {id:"c17",cat:"Animé",name:"Krillin",img:BASE+"IMG_8365.jpeg"},
-  {id:"c18",cat:"Animé",name:"Freezer",img:BASE+"IMG_8366.jpeg"},
-  {id:"c19",cat:"Animé",name:"Cell",img:BASE+"IMG_8367.jpeg"},
-  {id:"c20",cat:"Animé",name:"Broly",img:BASE+"IMG_8368.png"},
-  {id:"c21",cat:"Animé",name:"Luffy",img:BASE+"IMG_8369.jpeg"},
-  {id:"c22",cat:"Animé",name:"Zoro",img:BASE+"IMG_8370.jpeg"},
-  {id:"c23",cat:"Animé",name:"Nami",img:BASE+"IMG_8371.jpeg"},
-  {id:"c24",cat:"Animé",name:"Sanji",img:BASE+"IMG_8372.jpeg"},
-  {id:"c25",cat:"Animé",name:"Chopper",img:BASE+"IMG_8373.jpeg"},
-  {id:"c26",cat:"Animé",name:"Nico Robin",img:BASE+"IMG_8374.jpeg"},
-  {id:"c27",cat:"Animé",name:"Usopp",img:BASE+"IMG_8375.jpeg"},
-  {id:"c28",cat:"Animé",name:"Ace",img:BASE+"IMG_8376.jpeg"},
-  {id:"c29",cat:"Animé",name:"Trafalgar Law",img:BASE+"IMG_8377.jpeg"},
-  {id:"c30",cat:"Animé",name:"Shanks",img:BASE+"IMG_8378.jpeg"},
-  {id:"c31",cat:"Animé",name:"Tanjiro Kamado",img:BASE+"IMG_8379.jpeg"},
-  {id:"c32",cat:"Animé",name:"Nezuko Kamado",img:BASE+"IMG_8380.jpeg"},
-  {id:"c33",cat:"Animé",name:"Zenitsu Agatsuma",img:BASE+"IMG_8381.jpeg"},
-  {id:"c34",cat:"Animé",name:"Inosuke Hashibira",img:BASE+"IMG_8382.jpeg"},
-  {id:"c35",cat:"Animé",name:"Giyu Tomioka",img:BASE+"IMG_8383.jpeg"},
-  {id:"c36",cat:"Animé",name:"Shinobu Kocho",img:BASE+"IMG_8384.jpeg"},
-  {id:"c37",cat:"Animé",name:"Kyojuro Rengoku",img:BASE+"IMG_8385.webp"},
-  {id:"c38",cat:"Animé",name:"Mitsuri Kanroji",img:BASE+"IMG_8386.jpeg"},
-  {id:"c39",cat:"Animé",name:"Tokito Muichiro",img:BASE+"IMG_8387.jpeg"},
-  {id:"c40",cat:"Animé",name:"Uzui Tengen",img:BASE+"IMG_8388.jpeg"},
-  {id:"c41",cat:"Animé",name:"Izuku Midoriya",img:BASE+"IMG_8389.jpeg"},
-  {id:"c42",cat:"Animé",name:"Katsuki Bakugo",img:BASE+"IMG_8390.jpeg"},
-  {id:"c43",cat:"Animé",name:"Shoto Todoroki",img:BASE+"IMG_8391.jpeg"},
-  {id:"c44",cat:"Animé",name:"Ochaco Uraraka",img:BASE+"IMG_8392.jpeg"},
-  {id:"c45",cat:"Animé",name:"All Might",img:BASE+"IMG_8393.jpeg"},
-  {id:"c46",cat:"Animé",name:"Tenya Iida",img:BASE+"IMG_8395.jpeg"},
-  {id:"c47",cat:"Animé",name:"Denki Kaminari",img:BASE+"IMG_8397.jpeg"},
-  {id:"c48",cat:"Animé",name:"Himiko Toga",img:BASE+"IMG_8398.jpeg"},
-  {id:"c49",cat:"Animé",name:"Eren Yeager",img:BASE+"IMG_8399.jpeg"},
-  {id:"c50",cat:"Animé",name:"Mikasa Ackerman",img:BASE+"IMG_8400.jpeg"},
-  {id:"c51",cat:"Animé",name:"Armin Arlert",img:BASE+"IMG_8401.jpeg"},
-  {id:"c52",cat:"Animé",name:"Levi Ackerman",img:BASE+"IMG_8402.jpeg"},
-  {id:"c53",cat:"Animé",name:"Erwin Smith",img:BASE+"IMG_8403.jpeg"},
-  {id:"c54",cat:"Animé",name:"Hange Zoë",img:BASE+"IMG_8404.jpeg"},
-  {id:"c55",cat:"Animé",name:"Zeke Yeager",img:BASE+"IMG_8405.jpeg"},
-  {id:"c56",cat:"Animé",name:"Sasha Blouse",img:BASE+"IMG_8406.jpeg"},
-  {id:"c57",cat:"Animé",name:"Reiner Braun",img:BASE+"IMG_8407.jpeg"},
-  {id:"c58",cat:"Animé",name:"Annie Leonhart",img:BASE+"IMG_8408.jpeg"},
-  {id:"c59",cat:"Animé",name:"Yuji Itadori",img:BASE+"IMG_8409.jpeg"},
-  {id:"c60",cat:"Animé",name:"Megumi Fushiguro",img:BASE+"IMG_8410.jpeg"},
-  {id:"c61",cat:"Animé",name:"Nobara Kugisaki",img:BASE+"IMG_8411.jpeg"},
-  {id:"c62",cat:"Animé",name:"Gojo Satoru",img:BASE+"IMG_8412.jpeg"},
-  {id:"c63",cat:"Animé",name:"Ryomen Sukuna",img:BASE+"IMG_8413.jpeg"},
-  {id:"c64",cat:"Animé",name:"Kento Nanami",img:BASE+"IMG_8414.jpeg"},
-  {id:"c65",cat:"Animé",name:"Maki Zenin",img:BASE+"IMG_8415.jpeg"},
-  {id:"c66",cat:"Animé",name:"Yuji Itadori",img:BASE+"IMG_8416.jpeg"},
-  {id:"c67",cat:"Animé",name:"Yuta Okkotsu",img:BASE+"IMG_8417.jpeg"},
-  {id:"c68",cat:"Animé",name:"Geto Suguru",img:BASE+"IMG_8418.jpeg"},
-  {id:"c69",cat:"Animé",name:"Light Yagami",img:BASE+"IMG_8419.jpeg"},
-  {id:"c70",cat:"Animé",name:"L Lawliet",img:BASE+"IMG_8420.jpeg"},
-  {id:"c71",cat:"Animé",name:"Ryuk",img:BASE+"IMG_8421.jpeg"},
-  {id:"c72",cat:"Animé",name:"Sailor Moon",img:BASE+"IMG_8422.jpeg"},
-  {id:"c73",cat:"Animé",name:"Totoro",img:BASE+"IMG_8423.jpeg"},
-  {id:"c74",cat:"Animé",name:"Kiki",img:BASE+"IMG_8424.jpeg"},
-  {id:"c75",cat:"Animé",name:"Chihiro",img:BASE+"IMG_8425.jpeg"},
-  {id:"c76",cat:"Animé",name:"Edward Elric",img:BASE+"IMG_8426.jpeg"},
-  {id:"c77",cat:"Animé",name:"Alphonse Elric",img:BASE+"IMG_8427.jpeg"},
-  {id:"c78",cat:"Animé",name:"Anya Forger",img:BASE+"IMG_8428.jpeg"},
-  {id:"c79",cat:"Animé",name:"Loid Forger",img:BASE+"IMG_8429.jpeg"},
-  {id:"c80",cat:"Animé",name:"Yor Forger",img:BASE+"IMG_8430.jpeg"},
-  {id:"c81",cat:"Animé",name:"Denji",img:BASE+"IMG_8431.jpeg"},
-  {id:"c82",cat:"Animé",name:"Power",img:BASE+"IMG_8432.jpeg"},
-  {id:"c83",cat:"Animé",name:"Makima",img:BASE+"IMG_8433.jpeg"},
-  {id:"c84",cat:"Animé",name:"Ken Kaneki",img:BASE+"IMG_8434.jpeg"},
-  {id:"c85",cat:"Animé",name:"Saitama",img:BASE+"IMG_8435.jpeg"},
-  {id:"c86",cat:"Animé",name:"Genos",img:BASE+"IMG_8436.jpeg"},
-  {id:"c87",cat:"Animé",name:"Rem",img:BASE+"IMG_8437.jpeg"},
-  {id:"c88",cat:"Animé",name:"Gon Freecss",img:BASE+"IMG_8438.jpeg"},
-  {id:"c89",cat:"Animé",name:"Killua Zoldyck",img:BASE+"IMG_8439.jpeg"},
-  {id:"c90",cat:"Animé",name:"Kurapika",img:BASE+"IMG_8440.jpeg"},
-  {id:"c91",cat:"Animé",name:"Hisoka",img:BASE+"IMG_8441.jpeg"},
-  {id:"c92",cat:"Animé",name:"Chrollo Lucilfer",img:BASE+"IMG_8442.jpeg"},
-  {id:"c93",cat:"Animé",name:"Jotaro Kujo",img:BASE+"IMG_8443.jpeg"},
-  {id:"c94",cat:"Animé",name:"Dio Brando",img:BASE+"IMG_8444.jpeg"},
-  {id:"c95",cat:"Animé",name:"Joseph Joestar",img:BASE+"IMG_8445.jpeg"},
-  {id:"c96",cat:"Animé",name:"Giorno Giovanna",img:BASE+"IMG_8446.jpeg"},
-  {id:"c97",cat:"Animé",name:"Josuke Higashikata",img:BASE+"IMG_8447.jpeg"},
-  {id:"c98",cat:"Animé",name:"Ichigo Kurosaki",img:BASE+"IMG_8448.jpeg"}
+  {id:"c1",name:"Naruto Uzumaki",img:BASE+"IMG_8348.jpeg"},
+  {id:"c2",name:"Sasuke Uchiha",img:BASE+"IMG_8350.jpeg"},
+  {id:"c3",name:"Sakura Haruno",img:BASE+"IMG_8351.jpeg"},
+  {id:"c4",name:"Kakashi Hatake",img:BASE+"IMG_8352.jpeg"},
+  {id:"c5",name:"Itachi Uchiha",img:BASE+"IMG_8353.jpeg"},
+  {id:"c6",name:"Hinata Hyuga",img:BASE+"IMG_8354.webp"},
+  {id:"c7",name:"Gaara",img:BASE+"IMG_8355.jpeg"},
+  {id:"c8",name:"Jiraiya",img:BASE+"IMG_8356.jpeg"},
+  {id:"c9",name:"Madara Uchiha",img:BASE+"IMG_8357.jpeg"},
+  {id:"c10",name:"Minato Namikaze",img:BASE+"IMG_8358.jpeg"},
+  {id:"c11",name:"Goku",img:BASE+"IMG_8359.jpeg"},
+  {id:"c12",name:"Vegeta",img:BASE+"IMG_8360.jpeg"},
+  {id:"c13",name:"Gohan",img:BASE+"IMG_8361.jpeg"},
+  {id:"c14",name:"Trunks",img:BASE+"IMG_8362.jpeg"},
+  {id:"c15",name:"Piccolo",img:BASE+"IMG_8363.jpeg"},
+  {id:"c16",name:"Bulma",img:BASE+"IMG_8364.jpeg"},
+  {id:"c17",name:"Krillin",img:BASE+"IMG_8365.jpeg"},
+  {id:"c18",name:"Freezer",img:BASE+"IMG_8366.jpeg"},
+  {id:"c19",name:"Cell",img:BASE+"IMG_8367.jpeg"},
+  {id:"c20",name:"Broly",img:BASE+"IMG_8368.png"},
+  {id:"c21",name:"Luffy",img:BASE+"IMG_8369.jpeg"},
+  {id:"c22",name:"Zoro",img:BASE+"IMG_8370.jpeg"},
+  {id:"c23",name:"Nami",img:BASE+"IMG_8371.jpeg"},
+  {id:"c24",name:"Sanji",img:BASE+"IMG_8372.jpeg"},
+  {id:"c25",name:"Chopper",img:BASE+"IMG_8373.jpeg"},
+  {id:"c26",name:"Nico Robin",img:BASE+"IMG_8374.jpeg"},
+  {id:"c27",name:"Usopp",img:BASE+"IMG_8375.jpeg"},
+  {id:"c28",name:"Ace",img:BASE+"IMG_8376.jpeg"},
+  {id:"c29",name:"Trafalgar Law",img:BASE+"IMG_8377.jpeg"},
+  {id:"c30",name:"Shanks",img:BASE+"IMG_8378.jpeg"},
+  {id:"c31",name:"Tanjiro Kamado",img:BASE+"IMG_8379.jpeg"},
+  {id:"c32",name:"Nezuko Kamado",img:BASE+"IMG_8380.jpeg"},
+  {id:"c33",name:"Zenitsu Agatsuma",img:BASE+"IMG_8381.jpeg"},
+  {id:"c34",name:"Inosuke Hashibira",img:BASE+"IMG_8382.jpeg"},
+  {id:"c35",name:"Giyu Tomioka",img:BASE+"IMG_8383.jpeg"},
+  {id:"c36",name:"Shinobu Kocho",img:BASE+"IMG_8384.jpeg"},
+  {id:"c37",name:"Kyojuro Rengoku",img:BASE+"IMG_8385.webp"},
+  {id:"c38",name:"Mitsuri Kanroji",img:BASE+"IMG_8386.jpeg"},
+  {id:"c39",name:"Tokito Muichiro",img:BASE+"IMG_8387.jpeg"},
+  {id:"c40",name:"Uzui Tengen",img:BASE+"IMG_8388.jpeg"},
+  {id:"c41",name:"Izuku Midoriya",img:BASE+"IMG_8389.jpeg"},
+  {id:"c42",name:"Katsuki Bakugo",img:BASE+"IMG_8390.jpeg"},
+  {id:"c43",name:"Shoto Todoroki",img:BASE+"IMG_8391.jpeg"},
+  {id:"c44",name:"Ochaco Uraraka",img:BASE+"IMG_8392.jpeg"},
+  {id:"c45",name:"All Might",img:BASE+"IMG_8393.jpeg"},
+  {id:"c46",name:"Tenya Iida",img:BASE+"IMG_8395.jpeg"},
+  {id:"c47",name:"Denki Kaminari",img:BASE+"IMG_8397.jpeg"},
+  {id:"c48",name:"Himiko Toga",img:BASE+"IMG_8398.jpeg"},
+  {id:"c49",name:"Eren Yeager",img:BASE+"IMG_8399.jpeg"},
+  {id:"c50",name:"Mikasa Ackerman",img:BASE+"IMG_8400.jpeg"},
+  {id:"c51",name:"Armin Arlert",img:BASE+"IMG_8401.jpeg"},
+  {id:"c52",name:"Levi Ackerman",img:BASE+"IMG_8402.jpeg"},
+  {id:"c53",name:"Erwin Smith",img:BASE+"IMG_8403.jpeg"},
+  {id:"c54",name:"Hange Zoë",img:BASE+"IMG_8404.jpeg"},
+  {id:"c55",name:"Zeke Yeager",img:BASE+"IMG_8405.jpeg"},
+  {id:"c56",name:"Sasha Blouse",img:BASE+"IMG_8406.jpeg"},
+  {id:"c57",name:"Reiner Braun",img:BASE+"IMG_8407.jpeg"},
+  {id:"c58",name:"Annie Leonhart",img:BASE+"IMG_8408.jpeg"},
+  {id:"c59",name:"Yuji Itadori",img:BASE+"IMG_8409.jpeg"},
+  {id:"c60",name:"Megumi Fushiguro",img:BASE+"IMG_8410.jpeg"},
+  {id:"c61",name:"Nobara Kugisaki",img:BASE+"IMG_8411.jpeg"},
+  {id:"c62",name:"Gojo Satoru",img:BASE+"IMG_8412.jpeg"},
+  {id:"c63",name:"Ryomen Sukuna",img:BASE+"IMG_8413.jpeg"},
+  {id:"c64",name:"Kento Nanami",img:BASE+"IMG_8414.jpeg"},
+  {id:"c65",name:"Maki Zenin",img:BASE+"IMG_8415.jpeg"},
+  {id:"c66",name:"Yuji Itadori",img:BASE+"IMG_8416.jpeg"},
+  {id:"c67",name:"Yuta Okkotsu",img:BASE+"IMG_8417.jpeg"},
+  {id:"c68",name:"Geto Suguru",img:BASE+"IMG_8418.jpeg"},
+  {id:"c69",name:"Light Yagami",img:BASE+"IMG_8419.jpeg"},
+  {id:"c70",name:"L Lawliet",img:BASE+"IMG_8420.jpeg"},
+  {id:"c71",name:"Ryuk",img:BASE+"IMG_8421.jpeg"},
+  {id:"c72",name:"Sailor Moon",img:BASE+"IMG_8422.jpeg"},
+  {id:"c73",name:"Totoro",img:BASE+"IMG_8423.jpeg"},
+  {id:"c74",name:"Kiki",img:BASE+"IMG_8424.jpeg"},
+  {id:"c75",name:"Chihiro",img:BASE+"IMG_8425.jpeg"},
+  {id:"c76",name:"Edward Elric",img:BASE+"IMG_8426.jpeg"},
+  {id:"c77",name:"Alphonse Elric",img:BASE+"IMG_8427.jpeg"},
+  {id:"c78",name:"Anya Forger",img:BASE+"IMG_8428.jpeg"},
+  {id:"c79",name:"Loid Forger",img:BASE+"IMG_8429.jpeg"},
+  {id:"c80",name:"Yor Forger",img:BASE+"IMG_8430.jpeg"},
+  {id:"c81",name:"Denji",img:BASE+"IMG_8431.jpeg"},
+  {id:"c82",name:"Power",img:BASE+"IMG_8432.jpeg"},
+  {id:"c83",name:"Makima",img:BASE+"IMG_8433.jpeg"},
+  {id:"c84",name:"Ken Kaneki",img:BASE+"IMG_8434.jpeg"},
+  {id:"c85",name:"Saitama",img:BASE+"IMG_8435.jpeg"},
+  {id:"c86",name:"Genos",img:BASE+"IMG_8436.jpeg"},
+  {id:"c87",name:"Rem",img:BASE+"IMG_8437.jpeg"},
+  {id:"c88",name:"Gon Freecss",img:BASE+"IMG_8438.jpeg"},
+  {id:"c89",name:"Killua Zoldyck",img:BASE+"IMG_8439.jpeg"},
+  {id:"c90",name:"Kurapika",img:BASE+"IMG_8440.jpeg"},
+  {id:"c91",name:"Hisoka",img:BASE+"IMG_8441.jpeg"},
+  {id:"c92",name:"Chrollo Lucilfer",img:BASE+"IMG_8442.jpeg"},
+  {id:"c93",name:"Jotaro Kujo",img:BASE+"IMG_8443.jpeg"},
+  {id:"c94",name:"Dio Brando",img:BASE+"IMG_8444.jpeg"},
+  {id:"c95",name:"Joseph Joestar",img:BASE+"IMG_8445.jpeg"},
+  {id:"c96",name:"Giorno Giovanna",img:BASE+"IMG_8446.jpeg"},
+  {id:"c97",name:"Josuke Higashikata",img:BASE+"IMG_8447.jpeg"},
+  {id:"c98",name:"Ichigo Kurosaki",img:BASE+"IMG_8448.jpeg"}
 ];
 
-const ROLES = ["arbitre", "j1", "j2"];
-const ROLE_LABEL = { arbitre: "Arbitre", j1: "Joueur 1", j2: "Joueur 2" };
-
-// ===== Outils =====
+// ===== 3. OUTILS =====
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 let uid = localStorage.getItem("uid");
 if (!uid) { uid = Math.random().toString(36).slice(2, 12); localStorage.setItem("uid", uid); }
+const savedName = localStorage.getItem("pseudo") || "";
 
 const code = (new URLSearchParams(location.search).get("room") || "").toUpperCase();
-let room = null, loaded = false, chosenDur = 60;
+let room = null, loaded = false, offset = 0, chosenDur = 60;
+let busy = false, endingFlag = false;
 
-function genCode() { return Math.random().toString(36).slice(2, 8).toUpperCase(); }
-function ref(path = "") { return db.ref(`rooms/${code}${path}`); }
-function myRole() { return room ? (ROLES.find(r => room.roles?.[r] === uid) || null) : null; }
-function nameOf(role) {
-  const id = room?.roles?.[role];
-  return id ? (room.players?.[id]?.name || "?") : "—";
+// Heure serveur : tous les téléphones comptent le même temps
+db.ref(".info/serverTimeOffset").on("value", s => { offset = s.val() || 0; });
+const srv = () => Date.now() + offset;
+
+const R = (p = "") => db.ref(`rooms/${code}${p}`);
+const genCode = () => Math.random().toString(36).slice(2, 8).toUpperCase();
+const clampDur = v => Math.min(100, Math.max(40, Number(v) || 60));
+const clampMax = v => Math.min(10, Math.max(3, Number(v) || 4));
+
+function pseudoVal(id = "pseudo") {
+  const v = ($(id)?.value || savedName).trim();
+  if (v) localStorage.setItem("pseudo", v);
+  return v;
 }
-// Le chrono ne tourne que pour le joueur dont c'est le tour
-function remainOf(role, now = Date.now()) {
-  const base = room?.remain?.[role] ?? 0;
-  return (room?.status === "playing" && room.turn === role) ? base - (now - room.turnStart) : base;
+function playersList() {
+  return Object.entries(room?.players || {}).sort((a, b) => (a[1].joinedAt || 0) - (b[1].joinedAt || 0));
+}
+function nameOf(id) { return room?.players?.[id]?.name || "?"; }
+function cur() { return room?.order?.[(room.turnIdx || 0) % (room.order?.length || 1)]; }
+function remainOf(id, t = srv()) {
+  const base = room?.remain?.[id] ?? 0;
+  if (room?.status === "playing" && room.phase === "guess" && cur() === id) return base - (t - room.turnStart);
+  return base;
 }
 function fmt(ms) { return Math.max(0, Math.ceil(ms / 1000)) + " s"; }
-function pickChar(exclude) {
-  const pool = CHARACTERS.filter(c => !exclude[c.id]);
+function pickChar(used) {
+  const pool = CHARACTERS.filter(c => !used?.[c.id]);
   return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
 }
 
-// ===== Salon =====
+// ===== 4. ACCUEIL =====
+function renderHome() {
+  $("app").innerHTML = `
+  <div class="panel">
+    <div class="hero">
+      <div class="logo">⚔️</div>
+      <div><h1 class="bang">COUP FATAL<br>ANIME</h1></div>
+    </div>
+    <p class="sub">Devine le perso à l'oral, entre amis. Un arbitre valide les réponses.</p>
+  </div>
+  <div class="panel">
+    <h2 class="sec bang">COMMENT ÇA MARCHE</h2>
+    <div class="step"><div class="num">1</div><div><b>Crée un salon</b><span>Choisis le nombre de participants, de 3 à 10.</span></div></div>
+    <div class="step"><div class="num">2</div><div><b>Invite tes amis</b><span>Envoie-leur le lien du salon.</span></div></div>
+    <div class="step"><div class="num">3</div><div><b>Lance la partie</b><span>L'arbitre voit le perso, les joueurs devinent à l'oral.</span></div></div>
+    <input id="pseudo" type="text" placeholder="Ton pseudo" value="${esc(savedName)}" maxlength="16">
+    <button class="btn" onclick="createRoom()">+ CRÉER UN SALON</button>
+    <input id="codeInput" type="text" placeholder="Code du salon" maxlength="8">
+    <button class="btn blue" onclick="joinByCode()">REJOINDRE</button>
+    <div class="note">Parties privées : seul le lien du salon permet d'entrer.</div>
+  </div>`;
+}
 async function createRoom() {
-  const name = $("pseudo").value.trim();
+  const name = pseudoVal();
   if (!name) return alert("Mets un pseudo !");
   const c = genCode();
-  await db.ref("rooms/" + c).set({
-    host: uid, status: "lobby", createdAt: Date.now(),
-    players: { [uid]: { name } }, roles: {}
+  await db.ref(`rooms/${c}`).set({
+    host: uid, status: "lobby", max: 4,
+    players: { [uid]: { name, joinedAt: Date.now() } }
   });
   location.href = "?room=" + c;
 }
 function joinByCode() {
-  const c = $("codeInput").value.trim().toUpperCase();
+  const c = ($("codeInput").value || "").trim().toUpperCase();
   if (c) location.href = "?room=" + c;
 }
+
+// ===== 5. REJOINDRE =====
+function renderJoin() {
+  const started = room.status !== "lobby";
+  const full = playersList().length >= (room.max || 4);
+  $("app").innerHTML = `<div class="panel c">
+    <h1 class="bang">REJOINDRE<br>LE SALON ${code}</h1>
+    ${started ? `<p class="sub">La partie a déjà commencé.</p>`
+      : full ? `<p class="sub">Le salon est complet.</p>`
+      : `<input id="pjoin" type="text" placeholder="Ton pseudo" value="${esc(savedName)}" maxlength="16">
+         <button class="btn" onclick="joinRoom()">ENTRER</button>`}
+  </div>`;
+}
 async function joinRoom() {
-  const name = $("pseudo").value.trim();
+  const name = pseudoVal("pjoin");
   if (!name) return alert("Mets un pseudo !");
-  await ref(`/players/${uid}`).update({ name });
-}
-async function claimRole(role) {
-  const res = await ref(`/roles/${role}`).transaction(cur => (cur && cur !== uid) ? undefined : uid);
-  if (!res.committed) return alert("Ce rôle est déjà pris !");
-  for (const r of ROLES) {
-    if (r !== role && room.roles?.[r] === uid) await ref(`/roles/${r}`).set(null);
-  }
-}
-async function releaseRole() {
-  const r = myRole();
-  if (r) await ref(`/roles/${r}`).set(null);
+  if (playersList().length >= (room.max || 4)) return alert("Salon complet !");
+  await R(`/players/${uid}`).set({ name, joinedAt: Date.now() });
 }
 
-// ===== Partie =====
+// ===== 6. SALON =====
+function renderLobby() {
+  endingFlag = false;
+  const list = playersList();
+  const max = room.max || 4;
+  const isHost = room.host === uid;
+  const isArb = room.arbitre === uid;
+  const canStart = isHost && list.length >= 3 && !!room.arbitre;
+  const rows = list.map(([id, p]) => `
+    <div class="prow">
+      <span>${esc(p.name)} ${id === room.host ? '<span class="badge g">HÔTE</span>' : ""}</span>
+      ${room.arbitre === id ? '<span class="badge">ARBITRE</span>' : ""}
+    </div>`).join("");
+  const arbBtn = !room.arbitre
+    ? `<button class="btn gold" onclick="becomeArbitre()">JE SERAI L'ARBITRE</button>`
+    : isArb
+      ? `<button class="btn red" onclick="releaseArbitre()">QUITTER L'ARBITRAGE</button>`
+      : `<div class="note">Arbitre : <b>${esc(nameOf(room.arbitre))}</b></div>`;
+
+  $("app").innerHTML = `
+  <div class="panel">
+    <div class="hero"><div class="logo">⚔️</div><div><h1 class="bang">SALON<br>${code}</h1></div></div>
+    <p class="sub">Envoie ce lien à tes amis :</p>
+    <input type="text" readonly value="${location.origin}${location.pathname}?room=${code}" onclick="this.select()">
+  </div>
+  <div class="panel">
+    <h2 class="sec bang">PARTICIPANTS ${list.length}/${max}</h2>
+    <div class="players">${rows}</div>
+    ${arbBtn}
+  </div>
+  ${isHost ? `
+  <div class="panel">
+    <h2 class="sec bang">NOMBRE DE PARTICIPANTS : <span id="maxVal">${max}</span></h2>
+    <input type="range" min="3" max="10" value="${max}"
+      oninput="$('maxVal').textContent=this.value" onchange="setMax(this.value)">
+    <div class="note">Entre 3 et 10 participants, arbitre compris.</div>
+    <h2 class="sec bang">TEMPS PAR JOUEUR : <span id="durVal">${chosenDur}</span> s</h2>
+    <input type="range" min="40" max="100" value="${chosenDur}"
+      oninput="chosenDur=this.value;$('durVal').textContent=this.value">
+    <button class="btn gold" ${canStart ? "" : "disabled"} onclick="startGame()">LANCER LA PARTIE</button>
+    ${canStart ? "" : `<div class="note">Il faut au moins 3 participants et un arbitre.</div>`}
+  </div>` : `<div class="panel"><p class="sub">En attente de l'hôte…</p></div>`}`;
+}
+async function setMax(v) {
+  const n = clampMax(v);
+  if (playersList().length > n) { alert("Trop de joueurs dans le salon pour ce nombre."); return render(); }
+  await R("/max").set(n);
+}
+async function becomeArbitre() {
+  const res = await R("/arbitre").transaction(c => (c && c !== uid) ? undefined : uid);
+  if (!res.committed) alert("Un arbitre est déjà choisi !");
+}
+async function releaseArbitre() { await R("/arbitre").set(null); }
+
+// ===== 7. PARTIE =====
 async function startGame() {
-  if (!ROLES.every(r => room.roles?.[r])) return alert("Il faut un Arbitre, un Joueur 1 et un Joueur 2.");
+  const list = playersList();
+  if (list.length < 3) return alert("Il faut au moins 3 participants.");
+  if (!room.arbitre) return alert("Choisis un arbitre.");
+  const order = list.map(([id]) => id).filter(id => id !== room.arbitre).sort(() => Math.random() - 0.5);
   const ch = pickChar({});
-  if (!ch) return alert("Aucun perso disponible.");
-  const d = Math.min(100, Math.max(40, Number(chosenDur) || 60)) * 1000;
-  const now = Date.now();
-  await ref().update({
-    status: "playing", turn: "j1", turnStart: now,
-    remain: { j1: d, j2: d }, score: { j1: 0, j2: 0 },
-    used: {}, charId: ch.id, winner: null, reason: null
+  const d = clampDur(chosenDur) * 1000;
+  const remain = {}, score = {};
+  order.forEach(id => { remain[id] = d; score[id] = 0; });
+  await R().update({
+    status: "playing", order, turnIdx: 0, remain, score, used: {},
+    charId: ch.id, phase: "guess", turnStart: srv(),
+    fb: null, lastName: null, winner: null, reason: null
   });
 }
 
-// "Bon" : le joueur actif a trouvé, c'est à l'autre de jouer
-async function arbBon() {
-  const role = room.turn, now = Date.now();
-  const left = remainOf(role, now);
-  const other = role === "j1" ? "j2" : "j1";
+// L'arbitre valide : Bon (true) ou Pas bon (false)
+async function judge(ok) {
+  if (busy || !room || room.status !== "playing" || room.phase !== "guess" || room.arbitre !== uid) return;
+  busy = true;
+  const t = srv();
+  const g = cur();
+  const left = Math.max(0, remainOf(g, t));
+  const remain = { ...room.remain, [g]: left };
+  const score = { ...(room.score || {}) };
+  if (ok) score[g] = (score[g] || 0) + 1;
   const used = { ...(room.used || {}), [room.charId]: true };
-  const remain = { ...room.remain, [role]: Math.max(0, left) };
-  const score = { ...(room.score || {}), [role]: (room.score?.[role] || 0) + 1 };
-  const next = pickChar(used);
-  if (!next) {
-    return ref().update({
-      status: "finished", remain, score, used, charId: null,
-      winner: remain.j1 >= remain.j2 ? "j1" : "j2", reason: "Plus de persos !"
-    });
-  }
-  await ref().update({ remain, score, used, charId: next.id, turn: other, turnStart: now });
+  const ch = CHARACTERS.find(c => c.id === room.charId);
+  await R().update({
+    phase: "feedback", remain, score, used, turnStart: null,
+    lastName: ch ? ch.name : null, fb: { ok, uid: g, at: t }
+  });
+  setTimeout(() => nextStep(ok, g).finally(() => { busy = false; }), 1000);
 }
 
-// "Pas bon" : même joueur, il reçoit un autre perso
-async function arbPasBon() {
-  const role = room.turn, now = Date.now();
-  const left = remainOf(role, now);
-  const used = { ...(room.used || {}), [room.charId]: true };
-  const remain = { ...room.remain, [role]: Math.max(0, left) };
-  const next = pickChar(used);
-  if (!next) {
-    return ref().update({
-      status: "finished", remain, used, charId: null,
-      winner: remain.j1 >= remain.j2 ? "j1" : "j2", reason: "Plus de persos !"
-    });
-  }
-  await ref().update({ remain, used, charId: next.id, turnStart: now });
+// Après la pause d'une seconde : perso suivant ou changement de joueur
+async function nextStep(ok, g) {
+  const snap = await R().once("value");
+  const r = snap.val();
+  if (!r || r.status !== "playing" || r.phase !== "feedback") return;
+  if ((r.remain?.[g] ?? 0) <= 0) return endGame(r, g, `Temps écoulé pour ${r.players?.[g]?.name || "?"}`);
+  const pool = CHARACTERS.filter(c => !(r.used || {})[c.id]);
+  if (!pool.length) return endGame(r, null, "Plus de persos !");
+  let turnIdx = r.turnIdx || 0;
+  if (ok) turnIdx = (turnIdx + 1) % r.order.length;
+  const ch = pool[Math.floor(Math.random() * pool.length)];
+  await R().update({
+    phase: "guess", turnIdx, charId: ch.id, turnStart: srv(),
+    lastName: null, fb: null
+  });
+}
+
+// Fin : celui à zéro perd, le gagnant est le meilleur score (puis le plus de temps)
+async function endGame(r, loser, reason) {
+  const ids = r.order.filter(id => id !== loser);
+  ids.sort((a, b) => ((r.score?.[b] || 0) - (r.score?.[a] || 0)) || ((r.remain?.[b] || 0) - (r.remain?.[a] || 0)));
+  await R().update({ status: "finished", phase: null, fb: null, winner: ids[0] || null, reason });
 }
 
 async function rejouer() {
-  await ref().update({
-    status: "lobby", used: null, charId: null, turn: null, turnStart: null,
-    remain: null, score: null, winner: null, reason: null
+  await R().update({
+    status: "lobby", phase: null, fb: null, order: null, remain: null, score: null,
+    used: null, charId: null, turnIdx: null, turnStart: null, lastName: null,
+    winner: null, reason: null
   });
 }
 
-// ===== Affichage =====
-function renderHome() {
-  $("app").innerHTML = `<div class="card"><h2>🎌 Coup Fatal Anime</h2>
-    <input id="pseudo" placeholder="Ton pseudo"><br>
-    <button onclick="createRoom()">Créer une partie privée</button>
-    <hr>
-    <input id="codeInput" placeholder="Code de la partie"><br>
-    <button onclick="joinByCode()">Rejoindre</button></div>`;
-}
-
-function lobbyHTML(players, isHost, mine) {
-  const rolesHTML = ROLES.map(r => {
-    const taken = room.roles?.[r];
-    const who = taken ? (players[taken]?.name || "?") : "libre";
-    let btn = "";
-    if (mine === r) btn = `<button onclick="releaseRole()">Quitter ce rôle</button>`;
-    else if (!taken) btn = `<button onclick="claimRole('${r}')">Choisir ${ROLE_LABEL[r]}</button>`;
-    return `<p><b>${ROLE_LABEL[r]}</b> : ${esc(who)}<br>${btn}</p>`;
-  }).join("");
-  const ready = ROLES.every(r => room.roles?.[r]);
-  return `<div class="card"><h2>Salon ${code}</h2>
-    <p>Envoie ce lien à tes potes :</p>
-    <input value="${location.origin}${location.pathname}?room=${code}" readonly onclick="this.select()">
-    <p>${Object.keys(players).length} joueur(s) dans le salon</p></div>
-    <div class="card"><h3>Rôles</h3>${rolesHTML}</div>
-    ${isHost ? `<div class="card">
-      <p>⏱️ Temps par joueur : <b><span id="durVal">${chosenDur}</span> s</b></p>
-      <input type="range" min="40" max="100" value="${chosenDur}" style="width:80%"
-        oninput="chosenDur=this.value;$('durVal').textContent=this.value"><br>
-      <button onclick="startGame()" ${ready ? "" : "disabled"}>Lancer la partie</button>
-      ${ready ? "" : `<p class="small">Il faut un Arbitre, un Joueur 1 et un Joueur 2.</p>`}
-    </div>` : `<p>En attente de l'hôte…</p>`}`;
-}
-
-function gameHTML(players, isHost, mine) {
-  const now = Date.now();
-  const turnRole = room.turn;
-  const playing = room.status === "playing";
+function renderGame() {
+  const t = srv();
+  const isArb = room.arbitre === uid;
+  const g = cur();
   const ch = room.charId ? CHARACTERS.find(c => c.id === room.charId) : null;
+  const fb = room.phase === "feedback" ? room.fb : null;
+  const frameCls = fb ? (fb.ok ? "fb-ok" : "fb-bad") : "";
+  const order = room.order || [];
 
-  const playerBox = r => `<div class="player ${playing && turnRole === r ? "active" : ""}">
-      <b>${ROLE_LABEL[r]}</b><br>${esc(nameOf(r))}<br>
-      <div class="clock" id="clock-${r}">${fmt(remainOf(r, now))}</div>
-      ${playing && turnRole === r ? "🎯 À lui de deviner" : ""}
-    </div>`;
-
-  const imgHTML = ch?.img
-    ? `<img class="perso" src="${esc(ch.img)}" onerror="this.outerHTML='<div class=big>❓</div>'">`
-    : `<div class="big">❓</div>`;
-
-  let center = "";
   if (room.status === "finished") {
-    center = `<h2>🏁 Gagnant : ${ROLE_LABEL[room.winner] || "?"} (${esc(nameOf(room.winner))})</h2>
-      <p>${esc(room.reason || "")}</p>
-      ${isHost ? `<button onclick="rejouer()">Rejouer</button>` : ""}`;
-  } else if (mine === "arbitre") {
-    center = `${imgHTML}
-      <p>🎙️ <b>Arbitre</b> : le perso est</p>
-      <div class="name">${ch ? esc(ch.name) : "—"}</div>
-      <p class="small">${esc(nameOf(turnRole))} doit le deviner à l'oral.</p>
-      <button class="ok" onclick="arbBon()">✅ Bon</button>
-      <button class="bad" onclick="arbPasBon()">❌ Pas bon</button>`;
-  } else {
-    const msg = mine === turnRole
-      ? `<p class="ok-txt">C'est ton tour : devine à l'oral !</p>`
-      : `<p class="small">Tour de ${esc(nameOf(turnRole))}</p>`;
-    center = `${imgHTML}${msg}`;
+    $("app").innerHTML = `<div class="panel c">
+      <h1 class="bang">🏁 PARTIE TERMINÉE</h1>
+      <p class="sub">${esc(room.reason || "")}</p>
+      <h2 class="bang" style="color:var(--gold2)">🏆 ${esc(room.winner ? nameOf(room.winner) : "Personne")}</h2>
+      ${(room.host === uid || isArb) ? `<button class="btn gold" onclick="rejouer()">REJOUER</button>` : ""}
+    </div>`;
+    return;
   }
 
-  return `<div class="card"><h2>Partie ${code}</h2>
-    <div class="row">${playerBox("j1")}${playerBox("j2")}</div>
-    <p class="small">Bons persos : J1 ${room.score?.j1 || 0} – J2 ${room.score?.j2 || 0}</p>
+  const board = order.map(id => {
+    const on = room.phase === "guess" && id === g;
+    return `<div class="pl ${on ? "on" : ""}">
+      <div class="pn">${esc(nameOf(id))}</div>
+      <div class="pc" id="clock-${id}">${fmt(remainOf(id, t))}</div>
+      <div class="pscore">${room.score?.[id] || 0} bon(s)</div>
+    </div>`;
+  }).join("");
+
+  const img = ch?.img
+    ? `<img src="${esc(ch.img)}" alt="" onerror="this.outerHTML='<div class=q>❓</div>'">`
+    : `<div class="q">❓</div>`;
+
+  let nameHTML = "";
+  if (isArb) nameHTML = `<div class="name">${esc(ch?.name || "—")}</div>`;
+  else if (room.lastName) nameHTML = `<div class="name">${esc(room.lastName)}</div>`;
+  else nameHTML = `<div class="name"></div>`;
+
+  let result = "";
+  if (fb) result = fb.ok
+    ? `<span class="ok-t">✅ ${esc(nameOf(fb.uid))} a trouvé !</span>`
+    : `<span class="bad-t">❌ Mauvaise réponse pour ${esc(nameOf(fb.uid))}</span>`;
+  else if (g === uid) result = `<b style="color:#ffd166">C'est ton tour : devine à l'oral !</b>`;
+  else result = `Tour de <b>${esc(nameOf(g))}</b>`;
+
+  const canJudge = room.phase === "guess";
+  const arbControls = isArb ? `
+    <div class="arb-line">
+      <button class="btn" ${canJudge ? "" : "disabled"} onclick="judge(true)">✅ BON</button>
+      <button class="btn red" ${canJudge ? "" : "disabled"} onclick="judge(false)">❌ PAS BON</button>
+    </div>` : "";
+
+  $("app").innerHTML = `
+  <div class="panel">
+    <div class="board">${board}</div>
   </div>
-  <div class="card">${center}</div>`;
+  <div class="panel c">
+    <div class="frame ${frameCls}">${img}</div>
+    ${nameHTML}
+    <div class="result">${result}</div>
+    ${arbControls}
+  </div>`;
 }
 
+// ===== 8. AIGUILLAGE =====
 function render() {
   if (!code) return renderHome();
   if (!loaded) return;
   if (!room) {
-    $("app").innerHTML = `<div class="card"><p>Partie introuvable 😕</p><a href="./" style="color:#ff9f1c">Retour à l'accueil</a></div>`;
+    $("app").innerHTML = `<div class="panel c"><p>Partie introuvable 😕</p><button class="btn" onclick="location.href='./'">RETOUR</button></div>`;
     return;
   }
-  const players = room.players || {};
-  if (!players[uid]) {
-    $("app").innerHTML = `<div class="card"><h2>Rejoindre la partie ${code}</h2>
-      <input id="pseudo" placeholder="Ton pseudo"><br>
-      <button onclick="joinRoom()">Entrer</button></div>`;
-    return;
-  }
-  const isHost = room.host === uid;
-  const mine = myRole();
-  $("app").innerHTML = room.status === "lobby"
-    ? lobbyHTML(players, isHost, mine)
-    : gameHTML(players, isHost, mine);
+  if (!room.players?.[uid]) return renderJoin();
+  if (room.status === "lobby") return renderLobby();
+  return renderGame();
 }
 
-// ===== Écoute en temps réel =====
+// Mise à jour des chronos + fin de temps (géré par l'arbitre)
+setInterval(() => {
+  if (!room || room.status !== "playing") return;
+  const t = srv();
+  (room.order || []).forEach(id => {
+    const el = $("clock-" + id);
+    if (!el) return;
+    const v = remainOf(id, t);
+    el.textContent = fmt(v);
+    el.classList.toggle("low", v <= 5000 && room.phase === "guess" && cur() === id);
+  });
+  if (room.phase === "guess" && room.arbitre === uid && !endingFlag && remainOf(cur(), t) <= 0) {
+    endingFlag = true;
+    endGame(room, cur(), `Temps écoulé pour ${nameOf(cur())}`);
+  }
+}, 200);
+
+// ===== 9. TEMPS RÉEL =====
 if (code) {
-  ref().on("value", snap => { room = snap.val(); loaded = true; render(); });
+  R().on("value", snap => { room = snap.val(); loaded = true; render(); });
 } else {
   render();
 }
-
-// ===== Chronos + fin de temps =====
-setInterval(() => {
-  if (!room) return;
-  const now = Date.now();
-  ["j1", "j2"].forEach(r => {
-    const el = $("clock-" + r);
-    if (el) el.textContent = fmt(remainOf(r, now));
-  });
-  if (room.status === "playing" && room.turn && remainOf(room.turn, now) <= 0) {
-    const loser = room.turn;
-    const winner = loser === "j1" ? "j2" : "j1";
-    ref().update({
-      status: "finished", winner,
-      reason: `Temps écoulé pour ${ROLE_LABEL[loser]}`,
-      remain: { ...room.remain, [loser]: 0 }
-    });
-  }
-}, 250);
 </script>
 </body>
 </html>
