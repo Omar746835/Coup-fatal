@@ -33,6 +33,9 @@
   input:not([type=range]){width:100%;padding:13px;border-radius:8px;border:1px solid var(--line);background:#0b1330;color:#fff;font-size:18px;font-family:'Lilita One',Arial;margin:6px 0}
   input[type=range]{width:100%;accent-color:var(--gold2)}
   .note{background:#1c2748;border-radius:8px;padding:10px 12px;color:var(--mut);font-size:14px;margin:10px 0}
+  .modes{display:flex;gap:8px;margin:8px 0}
+  .mode{flex:1;padding:12px;border-radius:10px;border:2px solid var(--line);background:#0c1431;color:var(--txt);font-family:'Bangers',Impact;font-size:20px;letter-spacing:1px;cursor:pointer}
+  .mode.on{border-color:var(--gold2);background:#2a2410;color:var(--gold2)}
   .players{display:flex;flex-direction:column;gap:8px;margin:8px 0}
   .prow{display:flex;justify-content:space-between;align-items:center;background:#0c1431;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:18px}
   .badge{font-size:13px;padding:3px 9px;border-radius:999px;background:var(--gold);color:#1a1204;font-family:'Bangers',Impact;letter-spacing:1px}
@@ -44,9 +47,11 @@
   .pc{font-family:'Bangers',Impact;font-size:28px;color:var(--gold2)}
   .pc.low{color:var(--red);animation:blink .5s infinite alternate}
   .pscore{font-size:13px;color:var(--mut)}
-  .frame{margin:12px auto;max-width:360px;border-radius:16px;border:6px solid #2a3868;background:#070c1f;padding:6px;transition:border-color .25s,box-shadow .25s}
+  .frame{margin:12px auto;max-width:360px;border-radius:16px;border:6px solid #2a3868;background:#070c1f;padding:6px;overflow:hidden;transition:border-color .25s,box-shadow .25s}
   .frame img{display:block;width:100%;max-height:340px;object-fit:contain;border-radius:10px}
   .frame .q{font-family:'Bangers',Impact;font-size:96px;padding:50px 0;color:#7d8ab8}
+  .zoomwrap{position:relative;width:100%;height:300px;overflow:hidden;border-radius:10px;background:#000}
+  .zoomwrap img{position:absolute;max-height:none;max-width:none;width:auto;height:auto;transform-origin:center center}
   .frame.fb-ok{border-color:var(--ok);box-shadow:0 0 0 4px rgba(76,175,80,.35),0 0 30px rgba(76,175,80,.7);animation:pop .45s ease}
   .frame.fb-bad{border-color:var(--red);box-shadow:0 0 0 4px rgba(229,57,53,.35),0 0 30px rgba(229,57,53,.7);animation:shake .45s ease}
   .name{font-family:'Bangers',Impact;font-size:34px;letter-spacing:2px;color:var(--gold2);margin:6px 0;min-height:40px;text-shadow:0 3px 0 #5b4415}
@@ -191,14 +196,14 @@ const code = (new URLSearchParams(location.search).get("room") || "").toUpperCas
 let room = null, loaded = false, offset = 0, chosenDur = 60;
 let busy = false, endingFlag = false;
 
-// Heure serveur : tous les téléphones comptent le même temps
 db.ref(".info/serverTimeOffset").on("value", s => { offset = s.val() || 0; });
 const srv = () => Date.now() + offset;
 
 const R = (p = "") => db.ref(`rooms/${code}${p}`);
 const genCode = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 const clampDur = v => Math.min(100, Math.max(40, Number(v) || 60));
-const clampMax = v => Math.min(10, Math.max(3, Number(v) || 4));
+const clampMax = v => Math.min(10, Math.max(2, Number(v) || 4));
+const MIN_PLAYERS = 2;
 
 function pseudoVal(id = "pseudo") {
   const v = ($(id)?.value || savedName).trim();
@@ -221,6 +226,11 @@ function pickChar(used) {
   return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
 }
 
+// Mode difficile : zoom fixe pendant tout le tour
+function zoomScale() {
+  return 3;
+}
+
 // ===== 4. ACCUEIL =====
 function renderHome() {
   $("app").innerHTML = `
@@ -233,7 +243,7 @@ function renderHome() {
   </div>
   <div class="panel">
     <h2 class="sec bang">COMMENT ÇA MARCHE</h2>
-    <div class="step"><div class="num">1</div><div><b>Crée un salon</b><span>Choisis le nombre de participants, de 3 à 10.</span></div></div>
+    <div class="step"><div class="num">1</div><div><b>Crée un salon</b><span>Choisis le nombre de participants, de 2 à 10.</span></div></div>
     <div class="step"><div class="num">2</div><div><b>Invite tes amis</b><span>Envoie-leur le lien du salon.</span></div></div>
     <div class="step"><div class="num">3</div><div><b>Lance la partie</b><span>L'arbitre voit le perso, les joueurs devinent à l'oral.</span></div></div>
     <input id="pseudo" type="text" placeholder="Ton pseudo" value="${esc(savedName)}" maxlength="16">
@@ -248,7 +258,7 @@ async function createRoom() {
   if (!name) return alert("Mets un pseudo !");
   const c = genCode();
   await db.ref(`rooms/${c}`).set({
-    host: uid, status: "lobby", max: 4,
+    host: uid, status: "lobby", max: 4, mode: "normal",
     players: { [uid]: { name, joinedAt: Date.now() } }
   });
   location.href = "?room=" + c;
@@ -284,7 +294,8 @@ function renderLobby() {
   const max = room.max || 4;
   const isHost = room.host === uid;
   const isArb = room.arbitre === uid;
-  const canStart = isHost && list.length >= 3 && !!room.arbitre;
+  const canStart = isHost && list.length >= MIN_PLAYERS && !!room.arbitre;
+  const mode = room.mode || "normal";
   const rows = list.map(([id, p]) => `
     <div class="prow">
       <span>${esc(p.name)} ${id === room.host ? '<span class="badge g">HÔTE</span>' : ""}</span>
@@ -310,20 +321,31 @@ function renderLobby() {
   ${isHost ? `
   <div class="panel">
     <h2 class="sec bang">NOMBRE DE PARTICIPANTS : <span id="maxVal">${max}</span></h2>
-    <input type="range" min="3" max="10" value="${max}"
+    <input type="range" min="2" max="10" value="${max}"
       oninput="$('maxVal').textContent=this.value" onchange="setMax(this.value)">
-    <div class="note">Entre 3 et 10 participants, arbitre compris.</div>
+    <div class="note">Entre 2 et 10 participants, arbitre compris.</div>
+    <h2 class="sec bang">MODE DE JEU</h2>
+    <div class="modes">
+      <button class="mode ${mode === "normal" ? "on" : ""}" onclick="setMode('normal')">NORMAL</button>
+      <button class="mode ${mode === "hard" ? "on" : ""}" onclick="setMode('hard')">DIFFICILE</button>
+    </div>
+    <div class="note">${mode === "hard"
+      ? "Difficile : l'image est zoomée pendant tout le tour, entière après la réponse."
+      : "Normal : l'image entière est affichée."}</div>
     <h2 class="sec bang">TEMPS PAR JOUEUR : <span id="durVal">${chosenDur}</span> s</h2>
     <input type="range" min="40" max="100" value="${chosenDur}"
       oninput="chosenDur=this.value;$('durVal').textContent=this.value">
     <button class="btn gold" ${canStart ? "" : "disabled"} onclick="startGame()">LANCER LA PARTIE</button>
-    ${canStart ? "" : `<div class="note">Il faut au moins 3 participants et un arbitre.</div>`}
+    ${canStart ? "" : `<div class="note">Il faut au moins 2 participants et un arbitre.</div>`}
   </div>` : `<div class="panel"><p class="sub">En attente de l'hôte…</p></div>`}`;
 }
 async function setMax(v) {
   const n = clampMax(v);
   if (playersList().length > n) { alert("Trop de joueurs dans le salon pour ce nombre."); return render(); }
   await R("/max").set(n);
+}
+async function setMode(m) {
+  await R("/mode").set(m);
 }
 async function becomeArbitre() {
   const res = await R("/arbitre").transaction(c => (c && c !== uid) ? undefined : uid);
@@ -334,7 +356,7 @@ async function releaseArbitre() { await R("/arbitre").set(null); }
 // ===== 7. PARTIE =====
 async function startGame() {
   const list = playersList();
-  if (list.length < 3) return alert("Il faut au moins 3 participants.");
+  if (list.length < MIN_PLAYERS) return alert("Il faut au moins 2 participants.");
   if (!room.arbitre) return alert("Choisis un arbitre.");
   const order = list.map(([id]) => id).filter(id => id !== room.arbitre).sort(() => Math.random() - 0.5);
   const ch = pickChar({});
@@ -348,7 +370,6 @@ async function startGame() {
   });
 }
 
-// L'arbitre valide : Bon (true) ou Pas bon (false)
 async function judge(ok) {
   if (busy || !room || room.status !== "playing" || room.phase !== "guess" || room.arbitre !== uid) return;
   busy = true;
@@ -367,7 +388,6 @@ async function judge(ok) {
   setTimeout(() => nextStep(ok, g).finally(() => { busy = false; }), 1000);
 }
 
-// Après la pause d'une seconde : perso suivant ou changement de joueur
 async function nextStep(ok, g) {
   const snap = await R().once("value");
   const r = snap.val();
@@ -384,7 +404,6 @@ async function nextStep(ok, g) {
   });
 }
 
-// Fin : celui à zéro perd, le gagnant est le meilleur score (puis le plus de temps)
 async function endGame(r, loser, reason) {
   const ids = r.order.filter(id => id !== loser);
   ids.sort((a, b) => ((r.score?.[b] || 0) - (r.score?.[a] || 0)) || ((r.remain?.[b] || 0) - (r.remain?.[a] || 0)));
@@ -397,6 +416,16 @@ async function rejouer() {
     used: null, charId: null, turnIdx: null, turnStart: null, lastName: null,
     winner: null, reason: null
   });
+}
+
+function imageBlock(ch, fb) {
+  if (!ch?.img) return `<div class="q">❓</div>`;
+  if (room.mode !== "hard" || fb) {
+    return `<img src="${esc(ch.img)}" alt="" onerror="this.outerHTML='<div class=q>❓</div>'">`;
+  }
+  return `<div class="zoomwrap"><img src="${esc(ch.img)}" alt=""
+    style="transform:translate(-50%,-50%) scale(${zoomScale()});left:50%;top:50%"
+    onerror="this.outerHTML='<div class=q>❓</div>'"></div>`;
 }
 
 function renderGame() {
@@ -427,11 +456,6 @@ function renderGame() {
     </div>`;
   }).join("");
 
-  const img = ch?.img
-    ? `<img src="${esc(ch.img)}" alt="" onerror="this.outerHTML='<div class=q>❓</div>'">`
-    : `<div class="q">❓</div>`;
-
-  // Le nom : visible pour tous après la réponse, et pour l'arbitre pendant le tour
   const shownName = fb ? (room.lastName || ch?.name) : (isArb ? ch?.name : "");
   const nameHTML = `<div class="name">${esc(shownName || "")}</div>`;
 
@@ -454,7 +478,7 @@ function renderGame() {
     <div class="board">${board}</div>
   </div>
   <div class="panel c">
-    <div class="frame ${frameCls}">${img}</div>
+    <div class="frame ${frameCls}">${imageBlock(ch, fb)}</div>
     ${nameHTML}
     <div class="result">${result}</div>
     ${arbControls}
@@ -474,7 +498,7 @@ function render() {
   return renderGame();
 }
 
-// Mise à jour des chronos + fin de temps (géré par l'arbitre)
+// Chronos + fin de temps
 setInterval(() => {
   if (!room || room.status !== "playing") return;
   const t = srv();
