@@ -133,7 +133,7 @@ const CHARACTERS = [
   {id:"c52",name:"Levi Ackerman",img:BASE+"IMG_8402.jpeg"},
   {id:"c53",name:"Erwin Smith",img:BASE+"IMG_8403.jpeg"},
   {id:"c54",name:"Hange Zoë",img:BASE+"IMG_8404.jpeg"},
-{id:"c55",name:"Jean Kirstein",img:BASE+"IMG_8405.jpeg"},
+  {id:"c55",name:"Jean Kirstein",img:BASE+"IMG_8405.jpeg"},
   {id:"c56",name:"Sasha Blouse",img:BASE+"IMG_8406.jpeg"},
   {id:"c57",name:"Reiner Braun",img:BASE+"IMG_8407.jpeg"},
   {id:"c58",name:"Annie Leonhart",img:BASE+"IMG_8408.jpeg"},
@@ -431,10 +431,9 @@ function renderGame() {
     ? `<img src="${esc(ch.img)}" alt="" onerror="this.outerHTML='<div class=q>❓</div>'">`
     : `<div class="q">❓</div>`;
 
-  let nameHTML = "";
-  if (isArb) nameHTML = `<div class="name">${esc(ch?.name || "—")}</div>`;
-  else if (room.lastName) nameHTML = `<div class="name">${esc(room.lastName)}</div>`;
-  else nameHTML = `<div class="name"></div>`;
+  // Le nom : visible pour tous après la réponse, et pour l'arbitre pendant le tour
+  const shownName = fb ? (room.lastName || ch?.name) : (isArb ? ch?.name : "");
+  const nameHTML = `<div class="name">${esc(shownName || "")}</div>`;
 
   let result = "";
   if (fb) result = fb.ok
